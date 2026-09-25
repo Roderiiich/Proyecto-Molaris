@@ -6,13 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Usuario extends Model
 {
-    // Un usuario pertenece a un rol
+    protected $table = 'usuarios';
+
     public function rol()
     {
         return $this->belongsTo(Rol::class);
     }
 
-    // Un usuario puede ser un doctor
+    public function paciente()
+    {
+        return $this->hasOne(Paciente::class);
+    }
+    
     public function doctor()
     {
         return $this->hasOne(Doctor::class);

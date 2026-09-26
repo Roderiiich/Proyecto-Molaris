@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Box extends Model
 {
-    // Para evitar que busque "boxes" de forma incorrecta si aplica reglas plurales en inglés
+    use HasFactory;
+
     protected $table = 'boxes';
+
+    protected $fillable = ['nombre', 'estado'];
 }

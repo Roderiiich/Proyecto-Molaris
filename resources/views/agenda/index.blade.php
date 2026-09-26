@@ -42,11 +42,13 @@
 
                         <!-- Seleccionar Odontólogo -->
                         <div>
-                            <label for="doctor_id" class="block text-sm font-medium text-gray-700">Odontólogo</label>
-                            <select name="doctor_id" id="doctor_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                            <label for="doctor_id" class="block text-sm font-medium text-slate-700">Odontólogo</label>
+                            <select name="doctor_id" id="doctor_id" class="mt-1 block w-full rounded-xl border-slate-300 shadow-sm focus:border-molaris-primary focus:ring-molaris-primary" required>
                                 <option value="">Seleccione un odontólogo</option>
                                 @foreach(\App\Models\Doctor::with('usuario')->get() as $doctor)
-                                    <option value="{{ $doctor->id }}">{{ $doctor->usuario->nombre ?? 'Doctor' }} - {{ $doctor->especialidad }}</option>
+                                    <option value="{{ $doctor->id }}">
+                                        Dr. {{ $doctor->usuario->name ?? $doctor->usuario->nombre ?? 'Sin nombre' }} - {{ $doctor->especialidad }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>

@@ -7,14 +7,15 @@ use App\Http\Controllers\CitaController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\BoxController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // --- AGREGA ESTA LÍNEA PARA TU AGENDA ---
 Route::get('/agenda', [AgendaController::class, 'index'])->middleware(['auth', 'verified'])->name('agenda.index');

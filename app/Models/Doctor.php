@@ -13,6 +13,7 @@ class Doctor extends Model
 
     protected $fillable = ['usuario_id', 'rut', 'especialidad'];
 
+    // Relación con la tabla 'users' de Laravel Breeze
     public function usuario()
     {
         return $this->belongsTo(User::class, 'usuario_id');

@@ -3,14 +3,25 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
+               
+                     <!-- Logo Molaris (Software Dental) -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3">
-                        <img src="{{ asset('img/logo.png') }}" class="block h-10 w-auto" alt="Molaris Logo" />
-                        <span class="text-white font-bold text-xl tracking-wider uppercase">Molaris</span>
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 group">
+                        
+                        <!-- Nombre de la Clínica y Subtítulo -->
+                        <div class="flex flex-col justify-center">
+                            <!-- MOLARIS: Grande y en negrita -->
+                            <span class="text-white font-bold tracking-wider leading-none group-hover:text-cyan-400 transition" style="font-size: 1.45rem;">
+                                MOLARIS
+                            </span>
+                            <!-- Software Dental: Fino, pequeño y en minúsculas/capitalizado -->
+                            <span class="text-slate-300 font-normal tracking-normal leading-none" style="font-size: 0.75rem;">
+                                Software Dental
+                            </span>
+                        </div>
+
                     </a>
                 </div>
-                
                 
                 <!-- Navigation Links (Escritorio) -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">

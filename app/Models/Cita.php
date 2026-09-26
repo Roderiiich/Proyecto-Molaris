@@ -11,7 +11,7 @@ class Cita extends Model
 
     protected $table = 'citas';
 
-    // Se especifican los campos permitidos para la asignación masiva
+    // Campos permitidos para la asignación masiva
     protected $fillable = [
         'paciente_id',
         'doctor_id',
@@ -20,19 +20,21 @@ class Cita extends Model
         'estado'
     ];
 
-    // Relaciones del modelo
+    // Relación con Paciente
     public function paciente()
     {
-        return $this->belongsTo(Paciente::class);
+        return $this->belongsTo(Paciente::class, 'paciente_id');
     }
 
+    // Relación con Doctor
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
+    // Relación con Box
     public function box()
     {
-        return $this->belongsTo(Box::class);
+        return $this->belongsTo(Box::class, 'box_id');
     }
 }

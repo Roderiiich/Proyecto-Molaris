@@ -38,14 +38,14 @@
                         <!-- Selección de Usuario -->
                         <div>
                             <label for="usuario_id" class="block text-sm font-medium text-gray-700 mb-1">Usuario Asociado</label>
-                            <select name="usuario_id" id="usuario_id" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required>
-                                <option value="">Seleccione un usuario...</option>
-                                @foreach($usuarios as $usuario)
-                                    <option value="{{ $usuario->id }}" {{ old('usuario_id') == $usuario->id ? 'selected' : '' }}>
-                                        {{ $usuario->name ?? $usuario->nombre }} ({{ $usuario->email ?? $usuario->correo }})
-                                    </option>
-                                @endforeach
-                            </select>
+                            <select name="usuario_id" required class="w-full bg-slate-900 border border-slate-700 rounded-lg text-slate-100 text-sm">
+                            <option value="">-- Seleccionar Usuario --</option>
+                            @foreach($usuarios as $usuario)
+                                <option value="{{ $usuario->id }}">
+                                    {{ $usuario->name }} ({{ $usuario->email }})
+                                </option>
+                            @endforeach
+                        </select>
                         </div>
 
                         <!-- RUT -->

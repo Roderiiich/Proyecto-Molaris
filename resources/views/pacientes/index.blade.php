@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Pacientes') }}
+                {{ __('Listado de Pacientes') }}
             </h2>
             <a href="{{ route('pacientes.create') }}" class="inline-flex items-center px-5 py-2.5 bg-molaris-dark hover:bg-molaris-primary text-white font-bold rounded-lg shadow-md transition duration-200 ease-in-out">
     + Nuevo Paciente

@@ -37,6 +37,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/boxes', [BoxController::class, 'index'])->name('boxes.index');
     Route::post('/boxes', [BoxController::class, 'store'])->name('boxes.store');
     Route::patch('/boxes/{box}/estado', [BoxController::class, 'updateEstado'])->name('boxes.updateEstado');
+    // Ruta de la API para el autocompletado de pacientes
+    Route::get('/api/pacientes/buscar', [PacienteController::class, 'buscar'])->name('pacientes.buscar');
 });
+
 
 require __DIR__.'/auth.php';

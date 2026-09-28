@@ -83,4 +83,28 @@ class PacienteController extends Controller
         return redirect()->route('pacientes.index')
                          ->with('success', 'Paciente eliminado correctamente.');
     }
+
+   /**
+ * API para autocompletado de pacientes por RUT o Nombre.
+ */
+    public function buscar(Request $request)
+    {
+        $query = trim($request->get('q', ''));
+
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        // Convertir la búsqueda a minúsculas y quitar puntos/espacios del RUT
+        $queryMinuscula = mb_strtolower($query, 'UTF-8');
+        $rutLimpio = str_replace(['.', ' '], '', $queryMinuscula);
+
+        // Consulta insensible a mayúsculas/minúsculas (funciona en PostgreSQL, Supabase y MySQL)
+        $pacientes = Paciente::whereRaw('LOWER(rut) LIKE ?', ["%{$rutLimpio}%"])
+            ->orWhereRaw('LOWER(nombre) LIKE ?', ["%{$queryMinuscula}%"])
+            ->limit(8)
+            ->get(['id', 'rut', 'nombre']);
+
+        return response()->json($pacientes);
+    }
 }

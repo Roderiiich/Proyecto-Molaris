@@ -14,25 +14,33 @@ class BoxController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'nombre' => 'required|string|max:100',
-            'estado' => 'required|in:Disponible,Mantenimiento,Inactivo',
-        ]);
+        {
+            $request->validate([
+                'nombre' => 'required|string|max:100',
+                'estado' => 'required|in:Disponible,Mantenimiento,Inactivo',
+            ]);
 
-        Box::create($request->all());
+            Box::create($request->all());
 
-        return redirect()->route('boxes.index')->with('success', 'Box de atención registrado.');
-    }
+            return redirect()->route('boxes.index')->with('success', 'Box de atención registrado.');
+        }
 
     public function updateEstado(Request $request, Box $box)
-    {
-        $request->validate([
-            'estado' => 'required|in:Disponible,Mantenimiento,Inactivo',
-        ]);
+        {
+            $request->validate([
+                'estado' => 'required|in:Disponible,Mantenimiento,Inactivo',
+            ]);
 
-        $box->update(['estado' => $request->estado]);
+            $box->update(['estado' => $request->estado]);
 
-        return redirect()->route('boxes.index')->with('success', 'Estado del Box actualizado.');
-    }
+            return redirect()->route('boxes.index')->with('success', 'Estado del Box actualizado.');
+        }
+
+    public function destroy($id)
+        {
+            $box = Box::findOrFail($id);
+            $box->delete();
+
+            return redirect()->back()->with('success', 'El box fue eliminado correctamente.');
+        }
 }

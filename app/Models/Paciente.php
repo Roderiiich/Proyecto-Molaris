@@ -10,14 +10,21 @@ class Paciente extends Model
 
     // Permite guardar estos campos desde el formulario
     protected $fillable = [
-        'rut',
-        'nombre',
-        'telefono',
-        'correo',
-    ];
-
+    'nombre',
+    'rut',
+    'telefono',
+    'correo',
+    'alergias',
+    'enfermedades_cronicas',
+    'odontograma_state',
+];
     public function usuario()
     {
         return $this->belongsTo(Usuario::class);
+    }
+
+    public function fichasClinicas()
+    {
+    return $this->hasMany(FichaClinica::class, 'paciente_id')->latest();
     }
 }

@@ -10,7 +10,7 @@
             <!-- Mensajes de alerta -->
             @if (session('success'))
                 <div
-                    class="relative rounded border border-green-400 bg-green-100 px-4 py-3 text-green-700"
+                    class="relative rounded-xl border border-green-400 bg-green-100 px-4 py-3 text-green-700 shadow-sm"
                 >
                     {{ session('success') }}
                 </div>
@@ -18,228 +18,324 @@
 
             @if ($errors->has('error'))
                 <div
-                    class="relative rounded border border-red-400 bg-red-100 px-4 py-3 text-red-700"
+                    class="relative rounded-xl border border-red-400 bg-red-100 px-4 py-3 text-red-700 shadow-sm"
                 >
                     {{ $errors->first('error') }}
                 </div>
             @endif
-            <!-- Formulario para Agendar -->
-            <div class="bg-white p-4 shadow sm:rounded-lg sm:p-8">
-                <div class="max-w-xl">
-                    <h3 class="mb-4 text-lg font-bold text-gray-900">
-                        Agendar Nueva Cita
-                    </h3>
 
-                    <form
-                        action="{{ route('citas.store') }}"
-                        method="POST"
-                        class="space-y-4"
+            <!-- ========================================== -->
+            <!-- CARD PRINCIPAL: FORMULARIO + PANEL DERECHO -->
+            <!-- ========================================== -->
+            <div
+                class="overflow-hidden border border-slate-100 bg-white shadow-xl sm:rounded-2xl"
+            >
+                <!-- Estructura Flexbox garantizada en 2 columnas para pantallas grandes -->
+                <div class="flex w-full flex-col items-stretch lg:flex-row">
+                    <!-- COLUMNA IZQUIERDA: FORMULARIO (60% DE ANCHO EN DESKTOP) -->
+                    <div
+                        class="flex w-full flex-col justify-between p-6 sm:p-8 lg:w-[60%]"
                     >
-                        @csrf
+                        <div>
+                            <div class="mb-6 flex items-center gap-3">
+                                <div
+                                    class="rounded-xl bg-indigo-50 p-2.5 text-indigo-600"
+                                >
+                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-bold text-slate-800">
+                                    Agendar Nueva Cita
+                                </h3>
+                            </div>
 
-                        <!-- ========================================== -->
-                        <!-- 1. BUSCADOR DE PACIENTE POR RUT O NOMBRE   -->
-                        <!-- ========================================== -->
-                        <div class="relative mb-4">
-                            <label
-                                for="buscar_paciente"
-                                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
+                            <form
+                                action="{{ route('citas.store') }}"
+                                method="POST"
+                                class="space-y-4"
                             >
-                                Buscar Paciente (RUT o Nombre)
-                                <span class="text-red-500">*</span>
-                            </label>
+                                @csrf
 
-                            <div id="contenedor_input_buscar" class="relative">
-                                <input
-                                    type="text"
-                                    id="buscar_paciente"
-                                    autocomplete="off"
-                                    placeholder="Ej: 15666777-8 o Juan Pérez..."
-                                    class="w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pl-3 pr-10 text-sm text-slate-800 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500"
+                                <!-- 1. Buscador de Paciente -->
+                                <div class="relative">
+                                    <label
+                                        for="buscar_paciente"
+                                        class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
+                                    >
+                                        Buscar Paciente (RUT o Nombre)
+                                        <span class="text-red-500">*</span>
+                                    </label>
+
+                                    <div
+                                        id="contenedor_input_buscar"
+                                        class="relative"
+                                    >
+                                        <input
+                                            type="text"
+                                            id="buscar_paciente"
+                                            autocomplete="off"
+                                            placeholder="Ej: 15666777-8 o Juan Pérez..."
+                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3 pr-10 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            onclick="limpiarPaciente()"
+                                            class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 transition hover:text-red-500"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+
+                                    <!-- Resultados flotantes -->
+                                    <div
+                                        id="resultados_paciente"
+                                        class="absolute left-0 right-0 z-50 mt-1.5 hidden max-h-64 space-y-1 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-2xl"
+                                    ></div>
+
+                                    <!-- Input oculto paciente_id -->
+                                    <input
+                                        type="hidden"
+                                        name="paciente_id"
+                                        id="paciente_id"
+                                        value="{{ old('paciente_id') }}"
+                                        required
+                                    />
+
+                                    <!-- Confirmación selección -->
+                                    <div
+                                        id="paciente_seleccionado_info"
+                                        class="mt-2 hidden items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-800 shadow-sm"
+                                    >
+                                        <div
+                                            class="flex items-center space-x-2"
+                                        >
+                                            <svg class="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            <span
+                                                id="nombre_paciente_seleccionado"
+                                                class="text-sm font-semibold text-slate-800"
+                                            ></span>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            id="btn_quitar_paciente"
+                                            onclick="limpiarPaciente()"
+                                            class="rounded-md bg-red-100 px-2.5 py-1 text-xs font-bold text-red-600 transition hover:bg-red-200 hover:text-red-800"
+                                        >
+                                            ✕ Cambiar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Odontólogo y Box en 2 columnas -->
+                                <div
+                                    class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                >
+                                    <div>
+                                        <label
+                                            for="doctor_id"
+                                            class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
+                                        >
+                                            Odontólogo
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <select
+                                            name="doctor_id"
+                                            id="doctor_id"
+                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                            required
+                                        >
+                                            <option value="" disabled selected>
+                                                Seleccione un odontólogo
+                                            </option>
+                                            @foreach (\App\Models\Doctor::with('usuario')->get() as $doctor)
+                                                <option
+                                                    value="{{ $doctor->id }}"
+                                                    {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}
+                                                >
+                                                    Dr. {{ $doctor->usuario->name ?? $doctor->usuario->nombre ?? 'Sin nombre' }} - {{ $doctor->especialidad }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            for="box_id"
+                                            class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
+                                        >
+                                            Box de Atención
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <select
+                                            name="box_id"
+                                            id="box_id"
+                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                            required
+                                        >
+                                            <option value="" disabled selected>
+                                                Seleccione un box
+                                            </option>
+                                            @foreach (\App\Models\Box::all() as $box)
+                                                <option
+                                                    value="{{ $box->id }}"
+                                                    {{ old('box_id') == $box->id ? 'selected' : '' }}
+                                                >
+                                                    {{ $box->nombre }} ({{$box->estado }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Fecha y Hora en 2 columnas -->
+                                <div
+                                    class="grid grid-cols-1 gap-4 sm:grid-cols-2"
+                                >
+                                    <div>
+                                        <label
+                                            for="fecha"
+                                            class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
+                                        >
+                                            Fecha de la Cita
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="date"
+                                            id="fecha"
+                                            name="fecha"
+                                            value="{{ old('fecha', date('Y-m-d')) }}"
+                                            required
+                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            for="hora"
+                                            class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
+                                        >
+                                            Hora de la Cita
+                                            <span class="text-red-500">*</span>
+                                        </label>
+                                        <select
+                                            id="hora"
+                                            name="hora"
+                                            required
+                                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500"
+                                        >
+                                            <option value="" disabled selected>
+                                                -- Selecciona un horario --
+                                            </option>
+
+                                            @php
+                                                $inicio = \Carbon\Carbon::createFromTime(9, 0);$limite = \Carbon\Carbon::createFromTime(19, 0);
+                                            @endphp
+
+                                            @for ($time = $inicio->clone();$time->lte($limite);$time->addMinutes(30))
+                                                <option
+                                                    value="{{ $time->format('H:i') }}"
+                                                    {{ old('hora') == $time->format('H:i') ? 'selected' : '' }}
+                                                >
+                                                    {{ $time->format('h:i A') }} ({{$time->format('H:i') }} hrs)
+                                                </option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Botón de Submit -->
+                                <div class="flex w-full justify-center pt-2">
+                                    <button
+                                        type="submit"
+                                        class="w-lg flex max-w-md cursor-pointer items-center justify-center gap-2 rounded-xl bg-molaris-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition duration-150 ease-in-out hover:bg-black hover:-translate-y-0.5"
+                                    >
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Agendar Cita
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- COLUMNA DERECHA: LOGO & IDENTIDAD DE MARCA (40% DE ANCHO EN DESKTOP) -->
+                    <div
+                        class="relative flex min-h-[350px] w-full flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 p-6 text-white sm:p-8 lg:w-[40%]"
+                    >
+                        <!-- Efectos de fondo suaves -->
+                        <div
+                            class="pointer-events-none absolute -bottom-10 -right-10 h-44 w-44 rounded-full bg-indigo-500/10 blur-2xl"
+                        ></div>
+                        <div
+                            class="pointer-events-none absolute -left-10 -top-10 h-44 w-44 rounded-full bg-cyan-500/10 blur-2xl"
+                        ></div>
+
+                        <div
+                            class="relative z-10 my-auto flex flex-col items-center py-6 text-center"
+                        >
+                            <!-- LOGO MOLARIS (Sustituye 'images/logo.png' por tu ruta exacta) -->
+                            <div
+                                class="mb-4 rounded-2xl border border-white/10 bg-white/10 p-2 shadow-xl backdrop-blur-md"
+                            >
+                                <img
+                                    src="{{ asset('img/logo.png') }}"
+                                    alt="Molaris Logo"
+                                    class="h-50 w-auto rounded-2xl object-contain"
+                                    onError="
+                                        this.style.display = 'none';
+                                        document.getElementById(
+                                            'logo-fallback-brand'
+                                        ).style.display = 'block';
+                                    "
                                 />
 
-                                <!-- Botón para limpiar/resetear la selección -->
-                                <button
-                                    type="button"
-                                    onclick="limpiarPaciente()"
-                                    class="absolute inset-y-0 right-0 flex items-center pr-3 font-bold text-slate-400 transition hover:text-red-500"
+                                <div
+                                    id="logo-fallback-brand"
+                                    class="hidden text-center"
                                 >
-                                    ✕
-                                </button>
-                            </div>
-
-                            <!-- Menú desplegable flotante con resultados -->
-                            <div
-                                id="resultados_paciente"
-                                class="absolute left-0 right-0 z-50 mt-2 hidden max-h-72 space-y-1 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-2xl"
-                            ></div>
-
-                            <!-- ID Oculto que se enviará al CitaController -->
-                            <input
-                                type="hidden"
-                                name="paciente_id"
-                                id="paciente_id"
-                                value="{{ old('paciente_id') }}"
-                                required
-                            />
-
-                            <!-- Confirmación del paciente seleccionado (Permanente) -->
-                            <div
-                                id="paciente_seleccionado"
-                                class="mt-2 flex hidden items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs font-medium text-emerald-800 shadow-sm"
-                            >
-                                <div class="flex items-center space-x-2">
-                                    <svg class="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
                                     <span
-                                        id="texto_paciente"
-                                        class="text-sm font-semibold text-slate-800"
-                                    ></span>
+                                        class="text-2xl font-black tracking-wider text-white"
+                                        >MOLARIS</span
+                                    >
+                                    <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-300">Software Dental</p>
                                 </div>
-                                <button
-                                    type="button"
-                                    onclick="limpiarPaciente()"
-                                    class="rounded-md bg-red-100 px-2.5 py-1 text-xs font-bold text-red-600 transition hover:bg-red-200 hover:text-red-800"
-                                >
-                                    ✕ Cambiar
-                                </button>
                             </div>
+
+                            <span
+                                class="mb-3 rounded-full border border-indigo-400/30 bg-indigo-500/20 px-3.5 py-1 text-xs font-medium tracking-wide text-indigo-300"
+                            >
+                                Sistema de Agenda
+                            </span>
+                            <p class="max-w-xs text-xs leading-relaxed text-slate-300">Control en tiempo real de disponibilidad para profesionales y boxes de atención.</p>
                         </div>
 
-                        <!-- ========================================== -->
-                        <!-- 2. SELECCIONAR ODONTÓLOGO                  -->
-                        <!-- ========================================== -->
-                        <div class="mb-4">
-                            <label
-                                for="doctor_id"
-                                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
-                                >Odontólogo
-                                <span class="text-red-500">*</span></label
+                        <!-- Card Informativa en la base -->
+                        <div
+                            class="relative z-10 space-y-2 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm"
+                        >
+                            <div
+                                class="flex items-center gap-2 border-b border-white/10 pb-2 text-xs font-semibold text-indigo-200"
                             >
-                            <select
-                                name="doctor_id"
-                                id="doctor_id"
-                                class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-cyan-500"
-                                required
-                            >
-                                <option value="" disabled selected>
-                                    Seleccione un odontólogo
-                                </option>
-                                @foreach (\App\Models\Doctor::with('usuario')->get() as $doctor)
-                                    <option
-                                        value="{{ $doctor->id }}"
-                                        {{ old('doctor_id') == $doctor->id ? 'selected' : '' }}
-                                    >
-                                        Dr. {{ $doctor->usuario->name ?? $doctor->usuario->nombre ?? 'Sin nombre' }} - {{ $doctor->especialidad }}
-                                    </option>
-                                @endforeach
-                            </select>
+                                <svg class="h-4 w-4 shrink-0 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Tip de Operación</span>
+                            </div>
+                            <p class="text-[11px] leading-normal text-slate-300">Recuerda verificar la información de contacto antes de confirmar la cita programada.</p>
                         </div>
-
-                        <!-- ========================================== -->
-                        <!-- 3. SELECCIONAR BOX DE ATENCIÓN            -->
-                        <!-- ========================================== -->
-                        <div class="mb-4">
-                            <label
-                                for="box_id"
-                                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
-                                >Box de Atención
-                                <span class="text-red-500">*</span></label
-                            >
-                            <select
-                                name="box_id"
-                                id="box_id"
-                                class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-cyan-500"
-                                required
-                            >
-                                <option value="" disabled selected>
-                                    Seleccione un box
-                                </option>
-                                @foreach (\App\Models\Box::all() as $box)
-                                    <option
-                                        value="{{ $box->id }}"
-                                        {{ old('box_id') == $box->id ? 'selected' : '' }}
-                                    >
-                                        {{ $box->nombre }} ({{$box->estado }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- ========================================== -->
-                        <!-- 4. SELECCIÓN DE FECHA                      -->
-                        <!-- ========================================== -->
-                        <div class="mb-4">
-                            <label
-                                for="fecha"
-                                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
-                                >Fecha de la Cita
-                                <span class="text-red-500">*</span></label
-                            >
-                            <input
-                                type="date"
-                                id="fecha"
-                                name="fecha"
-                                value="{{ old('fecha', date('Y-m-d')) }}"
-                                required
-                                class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-cyan-500"
-                            />
-                        </div>
-
-                        <!-- Selección de Hora (Intervalos de 30 min: 09:00 a 19:00) -->
-                        <div class="mb-4">
-                            <label
-                                for="hora"
-                                class="mb-1 block text-xs font-semibold uppercase tracking-wider text-slate-700"
-                            >
-                                Hora de la Cita
-                                <span class="text-red-500">*</span>
-                            </label>
-                            <select
-                                id="hora"
-                                name="hora"
-                                required
-                                class="w-full rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-800 outline-none transition focus:ring-2 focus:ring-cyan-500"
-                            >
-                                <option value="" disabled selected>
-                                    -- Selecciona un horario --
-                                </option>
-
-                                @php
-            $inicio = \Carbon\Carbon::createFromTime(9, 0);  // 09:00 AM
-            $fin = \Carbon\Carbon::createFromTime(19, 0);     // 07:00 PM
-        @endphp
-
-                                @while ($inicio <= $fin)
-                                    <option
-                                        value="{{ $inicio->format('H:i') }}"
-                                        {{ old('hora') == $inicio->format('H:i') ? 'selected' : '' }}
-                                    >
-                                        {{ $inicio->format('h:i A') }} ({{ $inicio->format('H:i') }} hrs)
-                                    </option>
-                                    @php $inicio->addMinutes(30); @endphp
-                                @endwhile
-                            </select>
-                        </div>
-
-                        <!-- ========================================== -->
-                        <!-- 6. BOTÓN DE AGENDAR CITA                  -->
-                        <!-- ========================================== -->
-                        <div class="pt-2">
-                            <button
-                                type="submit"
-                                class="w-full cursor-pointer rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition duration-150 ease-in-out hover:bg-indigo-700"
-                            >
-                                Agendar Cita
-                            </button>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
 
             <!-- Listado de Citas Agendadas -->
-            <div class="bg-white p-4 shadow sm:rounded-lg sm:p-8">
+            <div
+                class="border border-slate-100 bg-white p-4 shadow-xl sm:rounded-2xl sm:p-8"
+            >
                 <h3 class="mb-4 text-lg font-bold text-gray-900">
                     Citas Programadas
                 </h3>
@@ -301,7 +397,7 @@
                                         class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
                                     >
                                         <span
-                                            class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800"
+                                            class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-green-800"
                                         >
                                             {{ $cita->estado }}
                                         </span>
@@ -323,6 +419,7 @@
             </div>
         </div>
     </div>
+
     @push ('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -379,7 +476,6 @@
                                         const item =
                                             document.createElement('div');
 
-                                        // Padding generoso (px-4 py-3) y bordes redondeados para separarlo del marco
                                         item.className =
                                             'px-4 py-3 rounded-lg hover:bg-cyan-50/80 cursor-pointer transition-all duration-150 flex items-center justify-between border border-transparent hover:border-cyan-200';
 
@@ -421,13 +517,8 @@
                 }
 
                 window.seleccionarPaciente = function (id, rut, nombre) {
-                    // 1. Asignamos el ID oculto
                     inputPacienteId.value = id;
-
-                    // 2. Colocamos el nombre y RUT dentro de la misma casilla de búsqueda
                     inputBuscar.value = `${nombre} (RUT: ${rut})`;
-
-                    // 3. Cambiamos el estilo del input para indicar que está seleccionado
                     inputBuscar.classList.add(
                         'bg-emerald-50',
                         'border-emerald-500',
@@ -435,7 +526,6 @@
                         'text-emerald-900'
                     );
 
-                    // 4. Ocultamos el menú desplegable de resultados
                     contenedorResultados.classList.add('hidden');
                     contenedorResultados.innerHTML = '';
                 };
@@ -444,7 +534,6 @@
                     inputPacienteId.value = '';
                     inputBuscar.value = '';
 
-                    // Restauramos el estilo original del input
                     inputBuscar.classList.remove(
                         'bg-emerald-50',
                         'border-emerald-500',

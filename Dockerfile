@@ -2,15 +2,29 @@
 # Imagen base de PHP 8.4 con Apache
 FROM php:8.4-apache
 
-# Instalar dependencias del sistema y extensiones de PHP requeridas
+
+# Instalar dependencias del sistema y extensiones necesarias
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libzip-dev \
     libicu-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
     zip \
     unzip \
     git \
-    && docker-php-ext-install pdo pdo_pgsql pgsql zip intl bcmath \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+    && docker-php-ext-install \
+        pdo \
+        pdo_pgsql \
+        pgsql \
+        zip \
+        intl \
+        bcmath \
+        gd \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -26,13 +40,13 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
 # Copiar Composer oficial
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Establecer directorio de trabajo
+# Directorio de trabajo
 WORKDIR /var/www/html
 
 # Permitir ejecutar Composer como superusuario
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Copiar archivos de Composer primero para aprovechar la caché de Docker
+# Copiar archivos de Composer primero para aprovechar la caché
 COPY composer.json composer.lock ./
 
 # Instalar dependencias de producción
@@ -45,10 +59,10 @@ RUN composer install \
 # Copiar el resto del proyecto
 COPY . .
 
-# Generar el autoloader final
+# Generar autoloader final
 RUN composer dump-autoload --optimize --no-dev
 
-# Ajustar permisos para Laravel
+# Ajustar permisos de Laravel
 RUN chown -R www-data:www-data \
     /var/www/html/storage \
     /var/www/html/bootstrap/cache
@@ -58,4 +72,3 @@ EXPOSE 80
 
 # Iniciar Apache
 CMD ["apache2-foreground"]
-

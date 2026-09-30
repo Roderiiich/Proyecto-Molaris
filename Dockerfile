@@ -24,12 +24,20 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Establecer directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar los archivos del proyecto
+# Permiso para ejecutar Composer como superusuario
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
+# 1. Copiar primero los archivos de Composer para aprovechar la caché de Docker
+COPY composer.json composer.lock ./
+
+# 2. Instalar dependencias omitiendo chequeos rígidos de plataforma
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts --ignore-platform-reqs
+
+# 3. Copiar el resto del código del proyecto
 COPY . .
 
-# Permitir ejecutar Composer como superusuario e instalar sin scripts que puedan fallar en build
-ENV COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+# Generar el autoloader final de Composer con todos los archivos copiados
+RUN composer dump-autoload --optimize --no-dev
 
 # Ajustar permisos para storage y bootstrap/cache
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OdontogramaController;
 use App\Http\Controllers\InventarioController; 
+use App\Http\Controllers\CitaConfirmacionController;
 
 // En routes/web.php
 
@@ -79,6 +80,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/inventario/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
 
     Route::get('/inventario/exportar-excel', [InventarioController::class, 'exportExcel'])->name('inventario.exportExcel');
+
+    // Vista pública con firma temporal única
+    Route::get('/citas/{cita}/confirmar-paciente', [CitaConfirmacionController::class, 'show'])
+    ->name('citas.confirmar.paciente')
+    ->middleware('signed');
+
+    // Procesamiento de la respuesta (Confirmar o Rechazar)
+    Route::post('/citas/{cita}/confirmar-paciente', [CitaConfirmacionController::class, 'responder'])
+    ->name('citas.confirmar.paciente.post')
+    ->middleware('signed');
 });
 
 require __DIR__.'/auth.php';

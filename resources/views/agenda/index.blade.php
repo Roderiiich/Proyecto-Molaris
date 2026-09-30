@@ -251,7 +251,7 @@
                                 <div class="flex w-full justify-center pt-2">
                                     <button
                                         type="submit"
-                                        class="w-lg flex max-w-md cursor-pointer items-center justify-center gap-2 rounded-xl bg-molaris-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition duration-150 ease-in-out hover:bg-black hover:-translate-y-0.5"
+                                        class="w-lg flex max-w-md cursor-pointer items-center justify-center gap-2 rounded-xl bg-molaris-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition duration-150 ease-in-out hover:-translate-y-0.5 hover:bg-black"
                                     >
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -396,11 +396,28 @@
                                     <td
                                         class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
                                     >
-                                        <span
-                                            class="inline-flex rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-green-800"
-                                        >
-                                            {{ $cita->estado }}
-                                        </span>
+                                        @switch ($cita->estado)
+                                            @case ('confirmada')
+                                                <span
+                                                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-emerald-800"
+                                                >
+                                                    ✓ Confirmada
+                                                </span>
+                                                @break
+                                            @case ('rechazada')
+                                                <span
+                                                    class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-rose-800"
+                                                >
+                                                    ✕ Rechazada
+                                                </span>
+                                                @break
+                                            @default
+                                                <span
+                                                    class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-amber-800"
+                                                >
+                                                    ⏳ Por Confirmar
+                                                </span>
+                                        @endswitch
                                     </td>
                                 </tr>
                             @empty

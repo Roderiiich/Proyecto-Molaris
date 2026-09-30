@@ -8,6 +8,18 @@
     <div class="py-12">
         <div class="mx-auto max-w-xl sm:px-6 lg:px-8">
             <div class="bg-white p-6 shadow-sm sm:rounded-lg">
+                
+                <!-- ICONO SVG DE PERSONA DESTACADO -->
+                <div class="flex flex-col items-center justify-center pb-6">
+                    <div class="flex h-20 w-20 items-center justify-center rounded-full bg-molaris-dark text-white shadow-inner ">
+                        <svg class="h-20 w-12 p-20 " fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="mt-6 text-xl font-bold text-slate-800 ">Ficha del Paciente</h3>
+                    <p class="text-xs text-slate-500">Ingresa los datos para registrarlo en el sistema Molaris</p>
+                </div>
+
                 <form
                     action="{{ route('pacientes.store') }}"
                     method="POST"
@@ -119,7 +131,7 @@
                         >
                         <button
                             type="submit"
-                            class="inline-flex items-center rounded-lg bg-molaris-mint px-5 py-2.5 font-bold text-white shadow-md transition duration-200 ease-in-out hover:bg-emerald-600 hover:shadow-lg"
+                            class="inline-flex items-center rounded-lg bg-molaris-dark px-5 py-1.5 font-bold text-white shadow-md transition duration-200 ease-in-out hover:bg-black hover:shadow-lg"
                         >
                             Guardar Paciente
                         </button>

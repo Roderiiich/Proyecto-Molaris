@@ -400,36 +400,31 @@
                                             {{ $cita->box->nombre ?? $cita->box_nombre ?? 'Box N/A' }}
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-5 py-4">
-                                        @php $estado = strtolower($cita->estado ?? 'pendiente'); @endphp
-                                        @if ($estado === 'confirmada' || $estado === 'confirmado' || $estado === 'aceptada')
-                                            <span
-                                                class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800"
-                                            >
+                                    <td
+                                        class="whitespace-nowrap px-6 py-4 text-sm text-gray-900"
+                                    >
+                                        @switch ($cita->estado)
+                                            @case ('confirmada')
                                                 <span
-                                                    class="h-1.5 w-1.5 rounded-full bg-emerald-600"
-                                                ></span>
-                                                Confirmada
-                                            </span>
-                                        @elseif ($estado === 'rechazada' || $estado === 'rechazado' || $estado === 'cancelada')
-                                            <span
-                                                class="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800"
-                                            >
+                                                    class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-emerald-800"
+                                                >
+                                                    ✓ Confirmada
+                                                </span>
+                                                @break
+                                            @case ('rechazada')
                                                 <span
-                                                    class="h-1.5 w-1.5 rounded-full bg-rose-600"
-                                                ></span>
-                                                Rechazada
-                                            </span>
-                                        @else
-                                            <span
-                                                class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800"
-                                            >
+                                                    class="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-rose-800"
+                                                >
+                                                    ✕ Rechazada
+                                                </span>
+                                                @break
+                                            @default
                                                 <span
-                                                    class="h-1.5 w-1.5 rounded-full bg-amber-600"
-                                                ></span>
-                                                Pendiente
-                                            </span>
-                                        @endif
+                                                    class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold leading-5 text-amber-800"
+                                                >
+                                                    ⏳ Por Confirmar
+                                                </span>
+                                        @endswitch
                                     </td>
                                     <td
                                         class="whitespace-nowrap px-5 py-4 text-center"

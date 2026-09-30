@@ -370,150 +370,182 @@
                 </div>
             </div>
 
+           
             <!-- MODAL REGISTRAR NUEVO INSUMO -->
             <div
                 x-show="openModal"
                 x-cloak
-                class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
-                style="
-                    position: fixed;
-                    top: 0;
-                    right: 0;
-                    bottom: 0;
-                    left: 0;
-                    z-index: 9999;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background-color: rgba(15, 23, 42, 0.6);
-                "
+                class="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm"
             >
                 <div
                     @click.away="openModal = false"
-                    class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl"
-                    style="max-height: 90vh; overflow-y: auto"
+                    class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl p-4"
                 >
+                    <!-- ENCABEZADO -->
                     <div
-                        class="flex items-center justify-between border-b border-slate-100 pb-3"
+                        class="flex items-center justify-between border-b border-slate-100 px-5 py-4"
                     >
-                        <h3 class="text-base font-bold text-slate-800">
-                            Registrar Nuevo Insumo
-                        </h3>
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">
+                                Registrar Nuevo Insumo
+                            </h3>
+                            <p class="mt-0.5 text-xs text-slate-400">Completa los datos del nuevo insumo</p>
+                        </div>
+
                         <button
                             type="button"
                             @click="openModal = false"
-                            class="text-lg font-bold text-slate-400 hover:text-slate-600"
+                            class="flex h-8 w-8 items-center justify-center rounded-lg text-lg font-semibold text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
                         >
                             ✕
                         </button>
                     </div>
 
+                    <!-- FORMULARIO -->
                     <form
                         action="{{ route('inventario.store') }}"
                         method="POST"
-                        class="mt-4 space-y-4"
+                        class="space-y-4 px-5 py-5"
                     >
                         @csrf
 
+                        <!-- NOMBRE -->
                         <div>
                             <label
-                                class="mb-1 block text-xs font-bold uppercase text-slate-700"
-                                >Nombre del Insumo *</label
+                                for="nombre"
+                                class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-700"
                             >
+                                Nombre del Insumo
+                                <span class="text-red-500">*</span>
+                            </label>
+
                             <input
+                                id="nombre"
                                 type="text"
                                 name="nombre"
                                 required
                                 placeholder="Ej: Anestesia Cartucho 2%"
-                                class="w-full rounded-xl border-slate-200 text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-500/10"
                             />
                         </div>
 
+                        <!-- CATEGORÍA -->
                         <div>
                             <label
-                                class="mb-1 block text-xs font-bold uppercase text-slate-700"
-                                >Categoría *</label
+                                for="categoria"
+                                class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-700"
                             >
+                                Categoría <span class="text-red-500">*</span>
+                            </label>
+
                             <select
+                                id="categoria"
                                 name="categoria"
                                 required
-                                class="w-full rounded-xl border-slate-200 text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-500/10"
                             >
                                 <option value="Anestesia">Anestesia</option>
+
                                 <option value="Protección">
                                     Protección (Guantes/Mascarillas)
                                 </option>
+
                                 <option value="Restauración">
                                     Restauración (Resinas/Adhesivos)
                                 </option>
+
                                 <option value="Endodoncia">Endodoncia</option>
+
                                 <option value="Cirugía">
                                     Cirugía / Suturas
                                 </option>
+
                                 <option value="Insumo General">
                                     Insumo General
                                 </option>
                             </select>
                         </div>
 
+                        <!-- UNIDAD DE MEDIDA -->
                         <div>
                             <label
-                                class="mb-1 block text-xs font-bold uppercase text-slate-700"
-                                >Unidad de Medida *</label
+                                for="unidad_medida"
+                                class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-700"
                             >
+                                Unidad de Medida
+                                <span class="text-red-500">*</span>
+                            </label>
+
                             <input
+                                id="unidad_medida"
                                 type="text"
                                 name="unidad_medida"
                                 required
                                 placeholder="Ej: Caja x 50, Par, Ml"
-                                class="w-full rounded-xl border-slate-200 text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-500/10"
                             />
                         </div>
 
+                        <!-- STOCK -->
                         <div class="grid grid-cols-2 gap-3">
+                            <!-- STOCK INICIAL -->
                             <div>
                                 <label
-                                    class="mb-1 block text-xs font-bold uppercase text-slate-700"
-                                    >Stock Inicial *</label
+                                    for="stock_actual"
+                                    class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-700"
                                 >
+                                    Stock Inicial
+                                    <span class="text-red-500">*</span>
+                                </label>
+
                                 <input
+                                    id="stock_actual"
                                     type="number"
                                     name="stock_actual"
                                     min="0"
                                     value="0"
                                     required
-                                    class="w-full rounded-xl border-slate-200 text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-500/10"
                                 />
                             </div>
+
+                            <!-- STOCK MÍNIMO -->
                             <div>
                                 <label
-                                    class="mb-1 block text-xs font-bold uppercase text-slate-700"
-                                    >Stock Mínimo (Alerta) *</label
+                                    for="stock_minimo"
+                                    class="mb-1.5 block text-xs font-bold uppercase tracking-wide text-slate-700"
                                 >
+                                    Stock Mínimo
+                                    <span class="text-red-500">*</span>
+                                </label>
+
                                 <input
+                                    id="stock_minimo"
                                     type="number"
                                     name="stock_minimo"
                                     min="1"
                                     value="5"
                                     required
-                                    class="w-full rounded-xl border-slate-200 text-sm focus:border-cyan-500 focus:ring-cyan-500"
+                                    class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-500/10"
                                 />
                             </div>
                         </div>
 
+                        <!-- BOTONES -->
                         <div
-                            class="flex justify-end gap-2 border-t border-slate-100 pt-4"
+                            class="flex items-center justify-end gap-2 border-t border-slate-100 pt-4"
                         >
                             <button
                                 type="button"
                                 @click="openModal = false"
-                                class="cursor-pointer rounded-xl px-4 py-2 text-xs font-bold text-slate-600 transition hover:bg-slate-100"
+                                class="cursor-pointer rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 transition hover:bg-slate-100"
                             >
                                 Cancelar
                             </button>
+
                             <button
                                 type="submit"
-                                class="cursor-pointer rounded-xl bg-molaris-dark px-4 py-2 text-xs font-bold text-white transition hover:bg-black"
+                                class="cursor-pointer rounded-xl bg-molaris-dark px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-black hover:shadow-md"
                             >
                                 Guardar Insumo
                             </button>
@@ -521,6 +553,7 @@
                     </form>
                 </div>
             </div>
+            
 
             <!-- MODAL AJUSTAR STOCK MANUAL -->
             <div

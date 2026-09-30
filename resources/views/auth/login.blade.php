@@ -3,21 +3,13 @@
     <div class="rounded-2xl border border-slate-100 bg-white p-8 shadow-xl">
         <!-- Header Molaris con Logo Principal Destacado -->
         <div class="mb-8 flex flex-col items-center text-center">
-            <!-- Contenedor con brillo y tamaño aumentado para el Logo -->
+            <!-- Envoltorio del Logo limpio sin sombras ni resplandores de fondo -->
             <div class="relative mb-4 flex items-center justify-center">
-                <!-- Resplandor/Sombra sutil de fondo para resaltar el logo -->
-                <div
-                    class="absolute -inset-2 rounded-full bg-gradient-to-r from-cyan-500/20 to-teal-400/20 opacity-75 blur-xl"
-                ></div>
-
-                <!-- Envoltorio del logo: Tamaño amplio (w-36 h-36 o w-40 h-40) y borde suave -->
-                <div
-                    class="relative flex h-36 w-36 items-center justify-center rounded-3xl  p-4 "
-                >
+                <div class="flex h-60 w-60 items-center justify-center p-4">
                     <img
                         src="{{ asset('img/logo.png') }}"
                         alt="Logo Molaris Dental"
-                        class="max-h-full max-w-full object-contain drop-shadow-md filter"
+                        class="max-h-full max-w-full object-contain"
                     />
                 </div>
             </div>

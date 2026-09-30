@@ -1,4 +1,4 @@
-```dockerfile
+
 # Imagen base de PHP 8.4 con Apache
 FROM php:8.4-apache
 
@@ -58,4 +58,4 @@ EXPOSE 80
 
 # Iniciar Apache
 CMD ["apache2-foreground"]
-```
+

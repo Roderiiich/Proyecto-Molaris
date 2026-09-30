@@ -10,6 +10,7 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OdontogramaController;
+use App\Http\Controllers\InventarioController; 
 
 // En routes/web.php
 
@@ -70,6 +71,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/pacientes/{id}/odontograma/estados', [OdontogramaController::class, 'obtenerEstados']);
     Route::post('/pacientes/{id}/odontograma/guardar', [OdontogramaController::class, 'guardarEstado']);
+
+    // Inventario
+    Route::get('/inventario', [InventarioController::class, 'index'])->name('inventario.index');
+    Route::post('/inventario', [InventarioController::class, 'store'])->name('inventario.store');
+    Route::patch('/inventario/{id}/stock', [InventarioController::class, 'actualizarStock'])->name('inventario.stock');
+    Route::delete('/inventario/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
+
+    Route::get('/inventario/exportar-excel', [InventarioController::class, 'exportExcel'])->name('inventario.exportExcel');
 });
 
 require __DIR__.'/auth.php';

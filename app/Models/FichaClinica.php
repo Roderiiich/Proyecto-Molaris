@@ -22,4 +22,10 @@ class FichaClinica extends Model
     {
         return $this->hasMany(FichaAdjunto::class);
     }
+    public function articulos()
+{
+    return $this->belongsToMany(Articulo::class, 'articulo_ficha_clinica')
+                ->withPivot('cantidad')
+                ->withTimestamps();
+}
 }

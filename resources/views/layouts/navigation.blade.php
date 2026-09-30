@@ -53,6 +53,15 @@
                         {{ __('Pacientes') }}
                     </x-nav-link>
 
+                    <!-- Inventario -->
+                    <x-nav-link
+                        :href="route('inventario.index')"
+                        :active="request()->routeIs('inventario.*')"
+                        class="font-semibold text-white transition hover:text-molaris-accent"
+                    >
+                        {{ __('Inventario') }}
+                    </x-nav-link>
+
                     <!-- Odontólogos -->
                     <x-nav-link
                         :href="route('doctores.index')"
@@ -134,14 +143,28 @@
                     class="inline-flex items-center justify-center rounded-md p-2 text-slate-300 transition hover:bg-molaris-primary hover:text-white focus:outline-none"
                 >
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{
+                        <path
+                            :class="{
                                 hidden: open,
                                 'inline-flex': !open,
-                            }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{
+                            }"
+                            class="inline-flex"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"
+                        />
+                        <path
+                            :class="{
                                 hidden: !open,
                                 'inline-flex': open,
-                            }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            }"
+                            class="hidden"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     </svg>
                 </button>
             </div>
@@ -176,6 +199,14 @@
                 class="text-white hover:text-molaris-accent"
             >
                 {{ __('Odontólogos') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link
+                :href="route('inventario.index')"
+                :active="request()->routeIs('inventario.*')"
+                class="text-white hover:text-molaris-accent"
+            >
+                {{ __('Inventario') }}
             </x-responsive-nav-link>
 
             <x-responsive-nav-link

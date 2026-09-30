@@ -4,7 +4,7 @@
         
         <!-- Header Molaris con Logo Oficial -->
         <div class="flex flex-col items-center text-center mb-6">
-            <div class="w-20 h-20 mb-3 flex items-center justify-center">
+            <div class="w-60 h-60 mb-3 flex items-center justify-center">
                 <img src="{{ asset('img/logo.png') }}" alt="Logo Molaris" class="max-h-full max-w-full object-contain">
             </div>
             

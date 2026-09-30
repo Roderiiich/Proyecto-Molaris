@@ -42,11 +42,6 @@
             <div
                 class="relative overflow-hidden rounded-3xl border-2 border-cyan-100 bg-white p-6 shadow-md sm:p-8"
             >
-                <!-- Franja superior decorativa con degradado -->
-                <div
-                    class="absolute left-0 right-0 top-0 h-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600"
-                ></div>
-
                 <div
                     class="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4"
                 >
@@ -232,7 +227,7 @@
                     <div class="mt-6 flex justify-end">
                         <button
                             type="submit"
-                            class="inline-flex transform items-center gap-2 rounded-xl bg-molaris-dark px-6 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-600/30 transition hover:bg-black hover:-translate-y-0.5"
+                            class="inline-flex transform items-center gap-2 rounded-xl bg-molaris-dark px-6 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-600/30 transition hover:-translate-y-0.5 hover:bg-black"
                         >
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

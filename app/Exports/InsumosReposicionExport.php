@@ -26,7 +26,7 @@ class InsumosReposicionExport implements FromCollection, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
-            'Código / Barcode',
+            
             'Nombre del Insumo',
             'Categoría',
             'Unidad de Medida',
@@ -45,7 +45,7 @@ class InsumosReposicionExport implements FromCollection, WithHeadings, WithMappi
         $sugerido = max(($item->stock_minimo * 2) - $item->stock_actual, $item->stock_minimo);
 
         return [
-            $item->codigo_barras ?? 'N/A',
+            
             $item->nombre,
             $item->categoria,
             $item->unidad_medida,

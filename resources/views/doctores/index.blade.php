@@ -330,4 +330,46 @@
             </div>
         </div>
     </div>
+    <!-- PUSH DE SCRIPTS PARA BLADE -->
+    @push ('scripts')
+        <script>
+           
+
+                // 2. Formateador Automático de RUT Chileno (XX.XXX.XXX-K)
+                const inputRut = document.getElementById('rut');
+                if (inputRut) {
+                    inputRut.addEventListener('input', function () {
+                        // Limpia caracteres no válidos y convierte K a mayúscula
+                        let valor = this.value
+                            .replace(/[^0-9kK]/g, '')
+                            .toUpperCase();
+
+                        // Limita a máximo 9 caracteres (8 dígitos + DV)
+                        if (valor.length > 9) {
+                            valor = valor.substring(0, 9);
+                        }
+
+                        if (valor.length === 0) {
+                            this.value = '';
+                            return;
+                        }
+
+                        // Si solo hay un carácter, lo deja sin formato
+                        if (valor.length === 1) {
+                            this.value = valor;
+                            return;
+                        }
+
+                        // Separa cuerpo y dígito verificador para formatear con puntos y guion
+                        let cuerpo = valor.slice(0, -1);
+                        let dv = valor.slice(-1);
+                        cuerpo = cuerpo.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+                        this.value = `${cuerpo}-${dv}`;
+                    });
+                }
+            
+
+        </script>
+    @endpush
 </x-app-layout>

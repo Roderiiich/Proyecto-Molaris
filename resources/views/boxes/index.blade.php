@@ -172,10 +172,7 @@
             <div
                 class="relative overflow-hidden rounded-3xl border-2 border-cyan-100 bg-white p-6 shadow-md sm:p-8"
             >
-                <!-- Franja superior decorativa con degradado -->
-                <div
-                    class="absolute left-0 right-0 top-0 h-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600"
-                ></div>
+                
 
                 <div
                     class="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4"

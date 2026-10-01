@@ -46,7 +46,7 @@
                             type="text"
                             name="search"
                             value="{{ request('search', $buscar ?? '') }}"
-                            placeholder="Buscar por Nombre o RUT..."
+                            placeholder="Buscar por Nombre o RUT"
                             style="padding-left: 42px !important"
                             class="w-full rounded-lg border border-slate-300 bg-slate-50 py-2 pr-4 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:ring-2 focus:ring-cyan-500"
                         />

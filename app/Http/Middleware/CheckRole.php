@@ -11,15 +11,25 @@ class CheckRole
     /**
      * Handle an incoming request.
      *
-     * @param  Closure(Request): (Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle($request, Closure $next, string $rol)
-{
-    // Si el usuario no está logueado o su rol no coincide con el requerido, se bloquea el acceso
-    if (!auth()->check() || auth()->user()->rol->nombre !== $rol) {
-        abort(403, 'Acceso denegado: No tienes el perfil necesario para esta sección.');
-    }
+    public function handle(Request $request, Closure $next, string ...$roles): Response
+    {
+        // 1. Verificar si el usuario está autenticado
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
 
-    return $next($request);
-}
+        $user = auth()->user();
+
+        // 2. Obtener el nombre del rol del usuario autenticado
+        $nombreRolUsuario = $user->rol?->nombre;
+
+        // 3. Comprobar si el rol del usuario está dentro de la lista de roles permitidos en la ruta
+        if (!$nombreRolUsuario || !in_array($nombreRolUsuario, $roles)) {
+            abort(403, 'Acceso denegado: No tienes el perfil necesario para esta sección.');
+        }
+
+        return $next($request);
+    }
 }

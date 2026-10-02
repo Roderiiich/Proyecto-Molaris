@@ -137,7 +137,7 @@
                                 class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition hover:text-molaris-accent focus:outline-none"
                                 :class="{ 'text-cyan-400': {{ request()->is('financiero*') ? 'true' : 'false' }} }"
                             >
-                                <span>{{ __('Financiero') }}</span>
+                                <span>{{ __('Finanzas') }}</span>
                                 <svg
                                     class="h-4 w-4 transition-transform duration-200"
                                     :class="{ 'rotate-180': dropdownOpen }"

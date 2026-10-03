@@ -426,12 +426,12 @@
                     </div>
 
                     <!-- Cuadro Total Líquido -->
-                    <div class="flex justify-end pt-2">
+                    <div class="flex justify-end pt-2 bg-slate-900 ">
                         <div
                             class="w-3/5 rounded-lg bg-slate-900 p-3.5 text-right text-white"
                         >
                             <p class="text-[10px] font-bold uppercase tracking-wider text-black">Total Líquido a Pagar</p>
-                            <p class="mt-0.5 text-xl font-black text-emerald-600" x-text="
+                            <p class="mt-0.5 text-xl bg-slate-900 font-black text-emerald-600" x-text="
                                     '$' + formatearMonto(boletaActive.comision)
                                 "></p>
                         </div>

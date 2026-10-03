@@ -395,7 +395,7 @@
                                     </td>
                                     <td class="whitespace-nowrap px-5 py-4">
                                         <span
-                                            class="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700"
+                                            class="inline-flex items-center rounded-md border border-slate-200 bg-molaris-dark px-2.5 py-0.5 text-xs font-semibold text-slate-700"
                                         >
                                             {{ $cita->box->nombre ?? $cita->box_nombre ?? 'Box N/A' }}
                                         </span>

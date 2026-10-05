@@ -143,7 +143,7 @@
                         </span>
                     </div>
                     <div
-                        class="flex h-11 w-11 shrink-0 items-center justify-center bg-red-500 text-rose-600"
+                        class="flex h-11 w-11 shrink-0 items-center justify-center bg-red-500 text-white"
                         style="border-radius: 9999px; aspect-ratio: 1 / 1"
                     >
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

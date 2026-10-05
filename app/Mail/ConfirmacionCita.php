@@ -25,28 +25,30 @@ class ConfirmacionCita extends Mailable
 
         Carbon::setLocale('es');
 
+        // Formateo de fecha soportando tanto fecha_hora como fecha individual
+        $fechaBase = $cita->fecha_hora ?? $cita->fecha ?? now();
         $this->fechaFormateada = ucfirst(
-            Carbon::parse($cita->fecha_hora)
+            Carbon::parse($fechaBase)
                 ->translatedFormat('l d \d\e F \d\e Y \a \l\a\s H:i \h\r\s')
         );
 
-        // Obtener el nombre del usuario asignado al doctor
-        $nombreUsuario = $cita->doctor->usuario->name
-            ?? $cita->doctor->usuario->nombre
+        // Nombre del doctor con fallback seguro
+        $nombreUsuario = $cita->doctor?->usuario?->name
+            ?? $cita->doctor?->usuario?->nombre
             ?? 'Especialista';
 
-        $especialidad = $cita->doctor->especialidad ?? '';
+        $especialidad = $cita->doctor?->especialidad ?? '';
 
         $this->nombreDoctor = "Dr. {$nombreUsuario}"
             . ($especialidad ? " ({$especialidad})" : "");
 
-        // Generar URL firmada para confirmar/cancelar la cita
-        $this->urlConfirmacion = URL::signedRoute(
+        // Generar URL firmada con expiración de 48 horas (Recomendado)
+        $this->urlConfirmacion = URL::temporarySignedRoute(
             'citas.confirmar.paciente',
+            now()->addHours(48),
             ['cita' => $cita->id]
         );
 
-        // Asunto del correo
         $this->asunto = 'Confirmación de Cita Médica - Molaris';
     }
 
@@ -61,23 +63,22 @@ class ConfirmacionCita extends Mailable
      */
     public function contenidoHtml()
     {
+        $nombrePaciente = $this->cita->paciente?->nombre ?? 'Estimado/a Paciente';
+        $nombreBox = $this->cita->box?->nombre ?? 'Por asignar';
+
         return "
             <div style='font-family: Arial, Helvetica, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;'>
 
                 <h2 style='color: #0f2d4a; margin-top: 0;'>
-                    ¡Hola {$this->cita->paciente->nombre}!
+                    ¡Hola {$nombrePaciente}!
                 </h2>
 
-                <p>
-                    Tu cita médica ha sido agendada con éxito en
-                    <strong>Molaris</strong>.
+                <p style='color: #334155; line-height: 1.5;'>
+                    Tu cita médica ha sido agendada con éxito en <strong>Molaris</strong>.
+                    Te esperamos para cuidar de tu sonrisa.
                 </p>
 
-                <p>
-                    Te esperamos para arreglar tu sonrisa.
-                </p>
-
-                <ul style='background-color: #f8fafc; padding: 15px 25px; border-radius: 8px; list-style: none; line-height: 1.8;'>
+                <ul style='background-color: #f8fafc; padding: 15px 25px; border-radius: 8px; list-style: none; line-height: 1.8; margin: 20px 0;'>
 
                     <li>
                         <strong>Fecha y Hora:</strong>
@@ -90,14 +91,14 @@ class ConfirmacionCita extends Mailable
                     </li>
 
                     <li>
-                        <strong>Box:</strong>
-                        {$this->cita->box->nombre}
+                        <strong>Box / Sala:</strong>
+                        {$nombreBox}
                     </li>
 
                 </ul>
 
                 <p style='font-size: 13px; color: #64748b; text-align: center;'>
-                    Por favor, responde a tu cita haciendo clic en el siguiente botón:
+                    Por favor, confirma o responde a tu cita haciendo clic en el siguiente botón:
                 </p>
 
                 <div style='text-align: center; margin: 25px 0;'>
@@ -109,11 +110,11 @@ class ConfirmacionCita extends Mailable
 
                 </div>
 
-                <p style='font-size: 12px; color: #94a3b8; text-align: center;'>
+                <p style='font-size: 12px; color: #94a3b8; text-align: center; line-height: 1.5;'>
                     Por favor, llega con 10 minutos de anticipación.
                     <br>
-                    Si prefieres, también puedes contactarnos a
-                    recepcion@clinicavenedental.cl
+                    Si tienes dudas, escríbenos a 
+                    <a href='mailto:recepcion@clinicavenedental.cl' style='color: #0f2d4a;'>recepcion@clinicavenedental.cl</a>
                 </p>
 
             </div>

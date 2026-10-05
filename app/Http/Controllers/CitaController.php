@@ -18,12 +18,10 @@ class CitaController extends Controller
      */
     public function index()
     {
-        // Traer las citas con las relaciones anidadas (doctor -> usuario)
         $citas = Cita::with(['paciente', 'doctor.usuario', 'box'])
             ->orderBy('fecha_hora', 'asc')
             ->get();
 
-        // Traer catálogos para los selectores
         $pacientes = Paciente::orderBy('nombre', 'asc')->get();
         $doctores = Doctor::with('usuario')->get();
         $boxes = Box::orderBy('numero', 'asc')->get();
@@ -60,62 +58,51 @@ class CitaController extends Controller
         // 3. Validación de colisiones horarias
         $colisionBox = Cita::where('box_id', $request->box_id)
             ->where('fecha_hora', $request->fecha_hora)
-            ->whereNotIn('estado', ['Rechazada', 'rechazada']) // Ignorar citas rechazadas en colisiones
+            ->whereNotIn('estado', ['Rechazada', 'rechazada', 'Cancelada', 'cancelada'])
             ->exists();
 
         $colisionDoctor = Cita::where('doctor_id', $request->doctor_id)
             ->where('fecha_hora', $request->fecha_hora)
-            ->whereNotIn('estado', ['Rechazada', 'rechazada']) // Ignorar citas rechazadas en colisiones
+            ->whereNotIn('estado', ['Rechazada', 'rechazada', 'Cancelada', 'cancelada'])
             ->exists();
 
         if ($colisionBox) {
             return back()
-                ->withErrors([
-                    'error' => 'El box seleccionado ya está ocupado en ese horario.'
-                ])
+                ->withErrors(['error' => 'El box seleccionado ya está ocupado en ese horario.'])
                 ->withInput();
         }
 
         if ($colisionDoctor) {
             return back()
-                ->withErrors([
-                    'error' => 'El odontólogo ya tiene una cita en ese horario.'
-                ])
+                ->withErrors(['error' => 'El odontólogo ya tiene una cita en ese horario.'])
                 ->withInput();
         }
 
-        // 4. Guardar cita como 'Pendiente' por defecto
+        // 4. Guardar cita como 'Pendiente'
         $cita = Cita::create([
             'paciente_id' => $request->paciente_id,
             'doctor_id'   => $request->doctor_id,
             'box_id'      => $request->box_id,
             'fecha_hora'  => $request->fecha_hora,
-            'estado'      => 'Pendiente', // <--- Se asigna Pendiente para que nazca en gris
+            'estado'      => 'Pendiente',
         ]);
 
-        // 5. Cargar relaciones necesarias para el correo
-        $cita->load([
-            'paciente',
-            'doctor.usuario',
-            'box'
-        ]);
+        // 5. Cargar relaciones necesarias
+        $cita->load(['paciente', 'doctor.usuario', 'box']);
 
-        // 6. Enviar correo mediante Brevo
-        $correoEnviado = false;
-
-        // Verificar paciente
+        // 6. Validaciones de Paciente y Correo
         if (!$cita->paciente) {
-            Log::error('BREVO: La cita no tiene paciente asociado.', [
-                'cita_id' => $cita->id,
-            ]);
+            Log::error('BREVO: La cita no tiene paciente asociado.', ['cita_id' => $cita->id]);
 
             return back()->withErrors([
                 'error' => 'La cita fue creada, pero no se encontró el paciente asociado.'
             ]);
         }
 
-        // Verificar correo del paciente
-        if (!$cita->paciente->correo) {
+        // Obtener correo con soporte para 'correo' o 'email'
+        $correoPaciente = $cita->paciente->correo ?? $cita->paciente->email ?? null;
+
+        if (!$correoPaciente) {
             Log::warning('BREVO: El paciente no tiene correo registrado.', [
                 'cita_id'     => $cita->id,
                 'paciente_id' => $cita->paciente->id,
@@ -126,21 +113,23 @@ class CitaController extends Controller
             ]);
         }
 
+        // 7. Enviar correo mediante API HTTPS de Brevo
+        $correoEnviado = false;
+
         try {
             Log::info('BREVO: Intentando enviar confirmación.', [
                 'cita_id'        => $cita->id,
-                'correo_destino' => $cita->paciente->correo,
+                'correo_destino' => $correoPaciente,
             ]);
 
-            // Crear instancia del correo
             $correo = new ConfirmacionCita($cita);
-
-            // Obtener contenido HTML
             $html = $correo->contenidoHtml();
 
-            // Enviar correo mediante API HTTPS de Brevo
+            // Desactivar verificación SSL solo en entorno local/desarrollo
+            $verifySsl = config('app.env') === 'production';
+
             $respuesta = Http::withOptions([
-                'verify' => false, // Omitir verificación SSL para entorno local (evita error cURL 60)
+                'verify' => $verifySsl,
             ])->withHeaders([
                 'accept'       => 'application/json',
                 'api-key'      => env('BREVO_API_KEY'),
@@ -152,7 +141,7 @@ class CitaController extends Controller
                 ],
                 'to' => [
                     [
-                        'email' => $cita->paciente->correo,
+                        'email' => $correoPaciente,
                         'name'  => $cita->paciente->nombre,
                     ]
                 ],
@@ -160,45 +149,43 @@ class CitaController extends Controller
                 'htmlContent' => $html,
             ]);
 
-            // Revisar respuesta de Brevo
             if ($respuesta->successful()) {
                 $correoEnviado = true;
 
                 Log::info('BREVO: Correo enviado correctamente.', [
                     'cita_id'        => $cita->id,
-                    'correo_destino' => $cita->paciente->correo,
+                    'correo_destino' => $correoPaciente,
                     'respuesta'      => $respuesta->json(),
                 ]);
             } else {
-                Log::error('BREVO: Error al enviar correo.', [
+                Log::error('BREVO: Error devuelto por la API.', [
                     'cita_id'        => $cita->id,
-                    'correo_destino' => $cita->paciente->correo,
+                    'correo_destino' => $correoPaciente,
                     'status'         => $respuesta->status(),
                     'respuesta'      => $respuesta->body(),
                 ]);
 
                 return back()->withErrors([
-                    'error' => 'BREVO ERROR: ' . $respuesta->body()
+                    'error' => 'Error de respuesta en Brevo (' . $respuesta->status() . '): ' . $respuesta->body()
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::error('BREVO: Excepción al enviar correo.', [
+            Log::error('BREVO: Excepción al conectar con el servidor.', [
                 'cita_id'        => $cita->id,
-                'correo_destino' => $cita->paciente->correo,
+                'correo_destino' => $correoPaciente,
                 'error'          => $e->getMessage(),
-                'archivo'        => $e->getFile(),
                 'linea'          => $e->getLine(),
             ]);
 
             return back()->withErrors([
-                'error' => 'ERROR BREVO: ' . $e->getMessage()
+                'error' => 'Excepción al conectar con Brevo: ' . $e->getMessage()
             ]);
         }
 
-        // 7. Mensaje final
+        // 8. Respuesta final al usuario
         $mensaje = $correoEnviado
-            ? 'Cita agendada correctamente y notificación enviada por correo.'
-            : 'Cita agendada correctamente, pero no se pudo enviar el correo electrónico.';
+            ? 'Cita agendada correctamente y notificación enviada por correo al paciente.'
+            : 'Cita agendada correctamente, pero no se pudo notificar por correo.';
 
         return redirect()
             ->back()

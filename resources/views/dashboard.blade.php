@@ -469,6 +469,28 @@
                                                     </button>
                                                 </form>
                                             @endif
+
+                                            <!-- Confirmar Cita (Botón Verde con Check) -->
+                                            @if (($cita->estado ?? '') !== 'confirmada')
+                                                <form
+                                                    action="{{ url('/agenda/'.$cita->id.'/confirmar') }}"
+                                                    method="POST"
+                                                    class="inline"
+                                                >
+                                                    @csrf
+                                                    @method ('PATCH')
+                                                    <button
+                                                        type="submit"
+                                                        title="Confirmar Cita"
+                                                        class="shadow-xs inline-flex shrink-0 cursor-pointer items-center justify-center rounded-lg bg-emerald-600 p-2 text-white transition-colors duration-200 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1"
+                                                    >
+                                                        <!-- Ícono de Check blanca sobre fondo verde -->
+                                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

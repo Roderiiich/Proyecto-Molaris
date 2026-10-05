@@ -350,18 +350,22 @@
                     >
                         <div>
                             <p class="text-[9px] font-bold uppercase text-slate-400">Profesional Prestador</p>
-                            <p class="mt-0.5 text-xs font-bold text-slate-900" x-text="
-                                    boletaActive.doctor
-                                "></p>
+                            <p
+                                class="mt-0.5 text-xs font-bold text-slate-900"
+                                x-text="boletaActive.doctor"
+                            ></p>
                             <p class="text-slate-500">Especialidad: Odontología General / Clínica</p>
                         </div>
                         <div>
                             <p class="text-[9px] font-bold uppercase text-slate-400">Período de Liquidación</p>
-                            <p class="mt-0.5 text-xs font-bold text-slate-900" x-text="
+                            <p
+                                class="mt-0.5 text-xs font-bold text-slate-900"
+                                x-text="
                                     formatearFecha(boletaActive.inicio) +
                                     ' al ' +
                                     formatearFecha(boletaActive.fin)
-                                "></p>
+                                "
+                            ></p>
                             <p class="text-slate-500">Estado: <span class="font-bold uppercase text-slate-800" x-text="boletaActive.estado"></span></p>
                         </div>
                     </div>
@@ -426,14 +430,17 @@
                     </div>
 
                     <!-- Cuadro Total Líquido -->
-                    <div class="flex justify-end pt-2 ">
+                    <div class="flex justify-end pt-2">
                         <div
-                            class="w-3/5 rounded-lg  p-3.5 text-right text-white"
+                            class="w-3/5 rounded-lg p-3.5 text-right text-white"
                         >
                             <p class="text-[10px] font-bold uppercase tracking-wider text-black">Total Líquido a Pagar</p>
-                            <p class="mt-0.5 text-xl font-bold text-emerald-600" x-text="
+                            <p
+                                class="mt-0.5 text-xl font-bold text-emerald-600"
+                                x-text="
                                     '$' + formatearMonto(boletaActive.comision)
-                                "></p>
+                                "
+                            ></p>
                         </div>
                     </div>
 
@@ -446,9 +453,10 @@
                             <p>Firma / Timbre Administración</p>
                         </div>
                         <div class="border-t border-slate-400 pt-1.5">
-                            <p class="font-bold text-slate-800" x-text="
-                                    boletaActive.doctor
-                                "></p>
+                            <p
+                                class="font-bold text-slate-800"
+                                x-text="boletaActive.doctor"
+                            ></p>
                             <p>Firma Conforme Profesional</p>
                         </div>
                     </div>

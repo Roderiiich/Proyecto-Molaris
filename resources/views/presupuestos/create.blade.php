@@ -14,28 +14,7 @@
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
         <div>
-            <div class="flex items-center gap-2 text-sm text-slate-500 mb-2">
-                <a
-                    href="{{ route('financiero.presupuestos.index') }}"
-                    class="hover:text-emerald-600 transition-colors"
-                >
-                    Presupuestos
-                </a>
-
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5l7 7-7 7"
-                    />
-                </svg>
-
-                <span class="text-slate-400">
-                    Nuevo
-                </span>
-            </div>
-
+           
             <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
                 Nuevo presupuesto clínico
             </h1>
@@ -439,7 +418,7 @@
                     @click="agregarItem()"
                     class="inline-flex items-center justify-center gap-2
                            px-4 py-2.5 rounded-xl
-                           bg-emerald-600 hover:bg-emerald-700
+                           bg-molaris-dark hover:bg-black
                            text-white text-sm font-semibold
                            shadow-sm hover:shadow transition-all"
                 >
@@ -801,7 +780,7 @@
                 type="submit"
                 class="inline-flex items-center justify-center gap-2
                        px-6 py-2.5 rounded-xl
-                       bg-emerald-600 hover:bg-emerald-700
+                       bg-molaris-dark hover:bg-black
                        text-white text-sm font-bold
                        shadow-sm hover:shadow-md transition-all"
             >

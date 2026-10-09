@@ -15,11 +15,12 @@
                 <p class="mt-1 text-sm text-slate-500">Resumen diario de abonos recaudados por medio de pago.</p>
             </div>
 
-            {{-- Formulario de Fecha --}}
+            {{-- Formulario de Fecha con Restricción a Hoy --}}
             <form
                 method="GET"
                 action="{{ route('financiero.pagos.cierre') }}"
                 class="flex items-center gap-2"
+                id="formCierreCaja"
             >
                 <div>
                     <label for="fecha" class="sr-only">Fecha del Cierre</label>
@@ -28,8 +29,16 @@
                         name="fecha"
                         id="fecha"
                         value="{{ $fecha }}"
+                        max="{{ date('Y-m-d') }}"
+                        onchange="
+                            const hoy = '{{ date('Y-m-d') }}';
+                            if (this.value > hoy) {
+                                alert('No es posible consultar cierres de caja de fechas futuras.');
+                                this.value = hoy;
+                            }
+                            this.form.submit();
+                        "
                         class="rounded-lg border-slate-300 text-sm focus:border-emerald-500 focus:ring-emerald-500"
-                        onchange="this.form.submit()"
                     />
                 </div>
                 <button
@@ -245,7 +254,6 @@
                                 </td>
 
                                 {{-- Monto --}}
-                               
                                 <td class="px-6 py-4 text-right">
                                     <span
                                         class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-bold uppercase text-emerald-800"

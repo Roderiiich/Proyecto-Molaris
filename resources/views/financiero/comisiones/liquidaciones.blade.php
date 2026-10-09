@@ -65,7 +65,7 @@
                         </select>
                     </div>
 
-                    <!-- Fecha Inicio -->
+                    <!-- Fecha Inicio (Máximo Hoy) -->
                     <div>
                         <label
                             class="mb-1 block text-xs font-semibold text-slate-600"
@@ -75,23 +75,25 @@
                             type="date"
                             name="periodo_inicio"
                             x-model="periodo_inicio"
-                            @change="calcularRecaudacion()"
+                            max="{{ date('Y-m-d') }}"
+                            @change="validarFechas(); calcularRecaudacion();"
                             required
                             class="w-full rounded-xl border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500"
                         />
                     </div>
 
-                    <!-- Fecha Fin -->
+                    <!-- Fecha Fin (Máximo Hoy - Bloqueado a futuro) -->
                     <div>
                         <label
                             class="mb-1 block text-xs font-semibold text-slate-600"
-                            >Fecha Fin</label
+                            >Fecha Fin (Máximo Hoy)</label
                         >
                         <input
                             type="date"
                             name="periodo_fin"
                             x-model="periodo_fin"
-                            @change="calcularRecaudacion()"
+                            max="{{ date('Y-m-d') }}"
+                            @change="validarFechas(); calcularRecaudacion();"
                             required
                             class="w-full rounded-xl border-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500"
                         />
@@ -495,14 +497,16 @@
         </div>
     </div>
 
-    <!-- Script de AlpineJS -->
+    <!-- Script de AlpineJS con Restricción de Fechas -->
     <script>
         function liquidacionManager() {
+            const hoy = '{{ date('Y-m-d') }}';
+
             return {
                 dentista_id: '',
                 nombreDoctor: 'Doctor Seleccionado',
-                periodo_inicio: '',
-                periodo_fin: '',
+                periodo_inicio: hoy,
+                periodo_fin: hoy,
                 total_recaudado: 0,
                 porcentaje_tasa: 0,
                 total_comision: 0,
@@ -526,8 +530,31 @@
                         this.dentista_id &&
                         this.periodo_inicio &&
                         this.periodo_fin &&
+                        this.periodo_fin <= hoy &&
+                        this.periodo_inicio <= this.periodo_fin &&
                         this.total_recaudado >= 0
                     );
+                },
+
+                // VALIDACIÓN EN TIEMPO REAL
+                validarFechas() {
+                    // 1. Bloquear fecha de fin futura
+                    if (this.periodo_fin > hoy) {
+                        alert('No es posible emitir liquidaciones con fechas futuras. La fecha fin se reajustó a hoy.');
+                        this.periodo_fin = hoy;
+                    }
+
+                    // 2. Bloquear fecha de inicio futura
+                    if (this.periodo_inicio > hoy) {
+                        alert('La fecha de inicio no puede ser una fecha futura.');
+                        this.periodo_inicio = hoy;
+                    }
+
+                    // 3. Garantizar coherencia (inicio <= fin)
+                    if (this.periodo_inicio > this.periodo_fin) {
+                        alert('La fecha de inicio no puede ser posterior a la fecha fin.');
+                        this.periodo_inicio = this.periodo_fin;
+                    }
                 },
 
                 actualizarNombreDoctor(event) {
@@ -539,6 +566,8 @@
                 },
 
                 async calcularRecaudacion() {
+                    this.validarFechas();
+
                     if (!this.dentista_id || !this.periodo_inicio || !this.periodo_fin)
                         return;
 
@@ -556,6 +585,8 @@
                 },
 
                 abrirModalNuevaLiquidacion() {
+                    this.validarFechas();
+
                     if (this.formularioValido) {
                         this.esNuevaLiquidacion = true;
                         this.boletaActive = {
@@ -595,6 +626,7 @@
                 },
 
                 confirmarYGuardar() {
+                    this.validarFechas();
                     document.getElementById('formLiquidacion').submit();
                 },
 
@@ -605,14 +637,10 @@
                 formatearFecha(fechaStr) {
                     if (!fechaStr) return '';
 
-                    // 1. Remueve la hora si viene en formato ISO ('T') o con espacio (' ')
                     const soloFecha = fechaStr.split('T')[0].split(' ')[0];
-
-                    // 2. Separa por guiones (YYYY-MM-DD)
                     const partes = soloFecha.split('-');
 
                     if (partes.length === 3) {
-                        // Devuelve formato DD/MM/YYYY
                         return `${partes[2]}/${partes[1]}/${partes[0]}`;
                     }
 

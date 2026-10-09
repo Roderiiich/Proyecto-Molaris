@@ -71,8 +71,22 @@ class PagoController extends Controller
     }
     public function cierreCaja(Request $request)
     {
-        // Fecha seleccionada para el cierre (por defecto, la fecha actual)
-        $fecha = $request->input('fecha', now()->format('Y-m-d'));
+        $hoy = now()->format('Y-m-d');
+
+        // Validar que la fecha no sea superior al día de hoy
+        $request->validate([
+            'fecha' => "nullable|date|before_or_equal:{$hoy}",
+        ], [
+            'fecha.before_or_equal' => 'No es posible consultar cierres de caja de fechas futuras.',
+        ]);
+
+        // Fecha seleccionada para el cierre (por defecto la actual)
+        $fecha = $request->input('fecha', $hoy);
+
+        // Bloqueo de seguridad: Si intentan forzar una fecha futura, reajusta a hoy
+        if ($fecha > $hoy) {
+            $fecha = $hoy;
+        }
 
         // Consultar los pagos correspondientes al día seleccionado
         $pagosDelDia = Pago::with(['presupuesto.paciente', 'usuario'])
@@ -88,11 +102,11 @@ class PagoController extends Controller
 
         // Métricas rápidas
         $resumen = [
-            'fecha'               => $fecha,
-            'total_efectivo'      => $totalEfectivo,
-            'total_transferencia' => $totalTransferencia,
-            'total_transbank'     => $totalTransbank,
-            'total_general'       => $totalGeneral,
+            'fecha'                  => $fecha,
+            'total_efectivo'         => $totalEfectivo,
+            'total_transferencia'    => $totalTransferencia,
+            'total_transbank'        => $totalTransbank,
+            'total_general'          => $totalGeneral,
             'cantidad_transacciones' => $pagosDelDia->count(),
         ];
 

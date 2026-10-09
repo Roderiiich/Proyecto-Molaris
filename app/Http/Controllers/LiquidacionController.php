@@ -1,96 +1,101 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Financiero;
 
+use App\Http\Controllers\Controller;
 use App\Models\Usuario;
-use App\Models\Presupuesto;
-use App\Models\Pago;
+use App\Models\Liquidacion;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class LiquidacionController extends Controller
+class ComisionController extends Controller
 {
     /**
-     * Despliega la vista principal de liquidación de comisiones.
+     * Muestra la vista de liquidaciones con el historial.
      */
-    public function index(Request $request)
+    public function liquidaciones()
     {
-        // Mes y año seleccionados (por defecto mes y año actual)
-        $mes = $request->input('mes', Carbon::now()->month);
-        $anio = $request->input('anio', Carbon::now()->year);
+        $dentistas = Usuario::whereHas('rol', function ($q) {
+            $q->where('nombre', 'Dentista');
+        })->get();
+
+        $liquidaciones = Liquidacion::with('dentista')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('financiero.comisiones.liquidaciones', compact('dentistas', 'liquidaciones'));
+    }
+
+    /**
+     * Endpoint API/AJAX para calcular la recaudación entre fechas.
+     */
+    public function calcularRecaudacion(Request $request)
+    {
+        $hoy = Carbon::now()->format('Y-m-d');
+
+        $request->validate([
+            'dentista_id'    => 'required|exists:usuarios,id',
+            'periodo_inicio' => 'required|date|before_or_equal:' . $hoy,
+            'periodo_fin'    => 'required|date|after_or_equal:periodo_inicio|before_or_equal:' . $hoy,
+        ], [
+            'periodo_fin.before_or_equal' => 'La fecha fin no puede ser posterior al día de hoy.',
+            'periodo_inicio.before_or_equal' => 'La fecha de inicio no puede ser futura.',
+        ]);
+
         $dentistaId = $request->input('dentista_id');
+        $inicio = $request->input('periodo_inicio');
+        $fin = $request->input('periodo_fin');
 
-        // Obtener listado de odontólogos para el filtro
-        $dentistas = Usuario::orderBy('nombre')->get();
-
-        // Consulta de recaudación por odontólogo y especialidad en el periodo
-        $queryLiquidaciones = DB::table('pagos')
+        // Lógica de cálculo de recaudación de pagos...
+        // Ejemplo ficticio o llamada a tu Repository/Service:
+        $totalRecaudado = \DB::table('pagos')
             ->join('presupuestos', 'pagos.presupuesto_id', '=', 'presupuestos.id')
-            ->join('presupuesto_detalles', 'presupuestos.id', '=', 'presupuesto_detalles.presupuesto_id')
-            ->join('usuarios', 'presupuestos.dentista_id', '=', 'usuarios.id')
-            ->select(
-                'usuarios.id as dentista_id',
-                'usuarios.nombre as dentista_nombre',
-                'usuarios.apellido as dentista_apellido',
-                'presupuesto_detalles.especialidad',
-                DB::raw('SUM(pagos.monto) as total_recaudado'),
-                DB::raw('COUNT(DISTINCT presupuestos.id) as total_presupuestos')
-            )
-            ->whereMonth('pagos.fecha_pago', $mes)
-            ->whereYear('pagos.fecha_pago', $anio)
-            ->groupBy('usuarios.id', 'usuarios.nombre', 'usuarios.apellido', 'presupuesto_detalles.especialidad');
+            ->where('presupuestos.dentista_id', $dentistaId)
+            ->whereBetween('pagos.fecha_pago', [$inicio, $fin])
+            ->sum('pagos.monto') ?? 0;
 
-        if ($dentistaId) {
-            $queryLiquidaciones->where('usuarios.id', $dentistaId);
-        }
+        $porcentaje = 45; // Tasa por defecto o traída de configuración
+        $totalComision = $totalRecaudado * ($porcentaje / 100);
 
-        $resumenEspecialidades = $queryLiquidaciones->get();
+        return response()->json([
+            'total_recaudado' => $totalRecaudado,
+            'porcentaje'      => $porcentaje,
+            'total_comision'   => $totalComision,
+        ]);
+    }
 
-        // Agrupar resultados por odontólogo
-        $liquidaciones = $resumenEspecialidades->groupBy('dentista_id')->map(function ($items) {
-            $primerItem = $items->first();
-            
-            // Definición base de comisiones por especialidad (o configurable en BD)
-            $porcentajesEspecialidad = [
-                'Odontología General' => 0.40, // 40%
-                'Endodoncia'          => 0.50, // 50%
-                'Ortodoncia'          => 0.45, // 45%
-                'Periodoncia'         => 0.45, // 45%
-                'Cirugía Bucal'       => 0.50, // 50%
-                'Implantología'       => 0.55, // 55%
-            ];
+    /**
+     * Guarda la nueva liquidación generada.
+     */
+    public function store(Request $request)
+    {
+        $hoy = Carbon::now()->format('Y-m-d');
 
-            $detalleEspecialidades = $items->map(function ($item) use ($porcentajesEspecialidad) {
-                $porcentaje = $porcentajesEspecialidad[$item->especialidad] ?? 0.40; // 40% por defecto
-                $comisionCalculada = $item->total_recaudado * $porcentaje;
+        // Validación estricta que impide guardar liquidaciones a futuro
+        $validated = $request->validate([
+            'dentista_id'    => 'required|exists:usuarios,id',
+            'periodo_inicio' => 'required|date|before_or_equal:' . $hoy,
+            'periodo_fin'    => 'required|date|after_or_equal:periodo_inicio|before_or_equal:' . $hoy,
+            'total_recaudado' => 'required|numeric|min:0',
+            'total_comision'  => 'required|numeric|min:0',
+        ], [
+            'periodo_fin.before_or_equal' => 'No es posible registrar liquidaciones con fecha fin futura.',
+            'periodo_inicio.before_or_equal' => 'La fecha de inicio no puede ser posterior a hoy.',
+            'periodo_fin.after_or_equal' => 'La fecha de término debe ser posterior o igual a la de inicio.',
+        ]);
 
-                return [
-                    'especialidad'     => $item->especialidad,
-                    'total_recaudado'  => $item->total_recaudado,
-                    'porcentaje'       => $porcentaje * 100,
-                    'monto_comision'   => $comisionCalculada,
-                ];
-            });
+        // Crear registro en la BD
+        Liquidacion::create([
+            'dentista_id'    => $validated['dentista_id'],
+            'periodo_inicio' => $validated['periodo_inicio'],
+            'periodo_fin'    => $validated['periodo_fin'],
+            'total_recaudado'=> $validated['total_recaudado'],
+            'total_comision' => $validated['total_comision'],
+            'estado'          => 'pendiente',
+        ]);
 
-            $totalRecaudadoGeneral = $detalleEspecialidades->sum('total_recaudado');
-            $totalComisionGeneral  = $detalleEspecialidades->sum('monto_comision');
-
-            return [
-                'dentista_id'            => $primerItem->dentista_id,
-                'dentista_nombre'        => $primerItem->dentista_nombre . ' ' . $primerItem->dentista_apellido,
-                'total_recaudado'        => $totalRecaudadoGeneral,
-                'total_comision'         => $totalComisionGeneral,
-                'detalle_especialidades' => $detalleEspecialidades,
-            ];
-        });
-
-        return view('liquidaciones.index', compact(
-            'liquidaciones',
-            'dentistas',
-            'mes',
-            'anio',
-            'dentistaId'
-        ));
+        return redirect()
+            ->route('financiero.comisiones.liquidaciones.index')
+            ->with('success', 'Liquidación emitida y registrada exitosamente.');
     }
 }

@@ -166,7 +166,7 @@
                             @csrf
                             @method ('patch')
 
-                            {{{-- FOTO DE PERFIL --}} <div> <label class="mb-2
+                            {{-- FOTO DE PERFIL --}} <div> <label class="mb-2
                             block text-xs font-bold uppercase tracking-wider
                             text-slate-700"> Foto de Perfil </label> <div
                             class="flex items-center gap-4">

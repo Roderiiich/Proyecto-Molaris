@@ -7,12 +7,13 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Muestra la vista de perfil del usuario.
      */
     public function edit(Request $request): View
     {
@@ -22,23 +23,37 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Actualiza la información del perfil y procesa la foto avatar.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        
+        // Rellena las propiedades validadas excepto el avatar para manejarlo manualmente
+        $user->fill($request->safe()->except('avatar'));
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Procesar la foto de perfil si fue adjuntada
+        if ($request->hasFile('avatar')) {
+            // Eliminar el avatar anterior del storage si existe
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            // Guardar la nueva imagen en la carpeta public/avatars
+            $user->avatar = $request->file('avatar')->store('avatars', 'public');
         }
 
-        $request->user()->save();
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Elimina la cuenta del usuario junto con su foto de perfil.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -47,6 +62,11 @@ class ProfileController extends Controller
         ]);
 
         $user = $request->user();
+
+        // Eliminar avatar antes de borrar la cuenta
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
+        }
 
         Auth::logout();
 

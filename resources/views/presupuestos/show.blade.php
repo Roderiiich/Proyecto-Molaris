@@ -127,7 +127,7 @@
                 <div class="border-b border-slate-100 pb-3">
                     <span class="block text-xs text-slate-400">Paciente:</span>
                     <span class="block text-base font-bold text-slate-800">
-                        {{ $presupuesto->paciente->nombres ?? 'N/A' }} {{ $presupuesto->paciente->apellidos ?? '' }}
+                        {{ $presupuesto->paciente->nombre ?? 'N/A' }}
                     </span>
                     <span class="font-mono text-xs text-slate-500"
                         >RUT: {{ $presupuesto->paciente->rut ?? 'N/A' }}</span
@@ -139,7 +139,7 @@
                         >Doctor(a) Tratante:</span
                     >
                     <span class="block text-sm font-semibold text-slate-700">
-                        {{ $presupuesto->dentista->nombre ?? 'N/A' }} {{ $presupuesto->dentista->apellido ?? '' }}
+                        {{ $presupuesto->dentista->usuario->nombre ?? $presupuesto->dentista->user->name ?? 'N/A' }}
                     </span>
                 </div>
 

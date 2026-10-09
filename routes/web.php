@@ -18,6 +18,7 @@ use App\Http\Controllers\LiquidacionController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\CompraController;
 use App\Http\Controllers\Financiero\ComisionController;
+use App\Http\Controllers\UsuarioRoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,14 +40,13 @@ Route::post('/citas/{cita}/confirmar-paciente', [CitaConfirmacionController::cla
 
 
 /*
-/*
 |--------------------------------------------------------------------------
-| Rutas Compartidas (Autenticados: Administrador y Dentista)
+| Rutas Compartidas Básicas (Perfil y Dashboard)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth')->group(function () {
     
-    // Dashboard con redirección inteligente según Rol
+    // Dashboard: Accesible para Admin, Dentista y Recepción
     Route::get('/dashboard', function () {
         if (auth()->user()->rol?->nombre === 'Dentista') {
             return redirect()->route('agenda.personal');
@@ -58,19 +58,45 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-    // Agenda General y Citas
-    
-    
 
+/*
+|--------------------------------------------------------------------------
+| Rutas Accesibles para RECEPCIÓN y ADMINISTRADOR
+| (Agenda General, Citas, Pacientes y Cierre de Caja)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Administrador,Recepción,Recepcionista'])->group(function () {
+    
+    // Agenda General y Agendamiento de Citas
+    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda-general', [AgendaController::class, 'general'])->name('agenda.general');
     Route::post('/citas', [CitaController::class, 'store'])->name('citas.store');
     Route::patch('/agenda/{id}/confirmar', [AgendaController::class, 'confirmar'])->name('agenda.confirmar');
     Route::patch('/agenda/{id}/rechazar', [AgendaController::class, 'rechazar'])->name('agenda.rechazar');
 
-    // Búsqueda y Gestión de Pacientes
+    // Módulo de Pacientes
     Route::get('/api/pacientes/buscar', [PacienteController::class, 'buscar'])->name('pacientes.buscar');
     Route::get('/pacientes/exportar-excel', [PacienteController::class, 'exportarExcel'])->name('pacientes.exportar');
     Route::resource('pacientes', PacienteController::class);
+
+    // Módulo de Caja y Pagos (Habilitado para Recepción)
+    Route::prefix('financiero')->name('financiero.')->group(function () {
+        Route::post('pagos', [PagoController::class, 'store'])->name('pagos.store');
+        Route::get('cierre-caja', [PagoController::class, 'cierreCaja'])->name('pagos.cierre');
+        Route::get('pagos/{pago}/comprobante', [PagoController::class, 'generarComprobante'])->name('pagos.comprobante');
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Rutas Compartidas entre RECEPCIÓN, DENTISTA y ADMINISTRADOR
+| (Fichas Clínicas, Odontogramas y Presupuestos)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Administrador,Dentista,Recepción,Recepcionista'])->group(function () {
 
     // Ficha Clínica y Atenciones
     Route::get('/pacientes/{paciente}/ficha', [FichaClinicaController::class, 'show'])->name('fichas.show');
@@ -86,25 +112,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/pacientes/{id}/odontograma/estados', [OdontogramaController::class, 'obtenerEstados']);
     Route::post('/pacientes/{id}/odontograma/guardar', [OdontogramaController::class, 'guardarEstado']);
 
-   // ------------------------------------------------------------------
-    // Módulo de Presupuestos (Accesible para Dentista y Administrador)
-    // ------------------------------------------------------------------
-    
-    // Rutas de creación (fijas)
+    // Módulo de Presupuestos (Accesible por Admin, Dentista y Recepción)
     Route::get('/presupuestos/crear', [PresupuestoController::class, 'create'])->name('presupuestos.create');
     Route::get('/presupuesto/crear', [PresupuestoController::class, 'create'])->name('presupuesto.create');
     Route::get('/financiero/presupuestos/crear', [PresupuestoController::class, 'create'])->name('financiero.presupuestos.create');
 
-    // Rutas de guardado (POST) - Con alias para financiero.presupuestos.store
     Route::post('/presupuestos', [PresupuestoController::class, 'store'])->name('presupuestos.store');
     Route::post('/financiero/presupuestos', [PresupuestoController::class, 'store'])->name('financiero.presupuestos.store');
 
-    // Rutas de listado (INDEX)
     Route::get('/presupuestos', [PresupuestoController::class, 'index'])->name('presupuestos.index');
     Route::get('/presupuesto', [PresupuestoController::class, 'index'])->name('presupuesto.index');
     Route::get('/financiero/presupuestos', [PresupuestoController::class, 'index'])->name('financiero.presupuestos.index');
 
-    // Rutas de detalle y cambio de estado
     Route::get('/presupuestos/{presupuesto}', [PresupuestoController::class, 'show'])->name('presupuestos.show');
     Route::get('/presupuesto/{presupuesto}', [PresupuestoController::class, 'show'])->name('presupuesto.show');
     Route::get('/financiero/presupuestos/{presupuesto}', [PresupuestoController::class, 'show'])->name('financiero.presupuestos.show');
@@ -115,7 +134,18 @@ Route::middleware('auth')->group(function () {
 
 
 /*
-| Rutas Exclusivas para ADMINISTRADOR (Acceso Total a Molaris)
+|--------------------------------------------------------------------------
+| Rutas Exclusivas para DENTISTA
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'role:Dentista'])->group(function () {
+    Route::get('/mi-agenda', [AgendaController::class, 'miAgenda'])->name('agenda.personal');
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Rutas Exclusivas para ADMINISTRADOR
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'role:Administrador'])->group(function () {
@@ -138,18 +168,14 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::delete('/inventario/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
     Route::get('/inventario/exportar-excel', [InventarioController::class, 'exportExcel'])->name('inventario.exportExcel');
 
-    Route::get('/agenda', [AgendaController::class, 'index'])->name('agenda.index');
-});
+    // ----------------------------------------------------------------------
+    // Nro Módulo: Gestión de Usuarios y Roles
+    // ----------------------------------------------------------------------
+    Route::get('/usuarios-roles', [UsuarioRoleController::class, 'index'])->name('admin.usuarios.index');
+    Route::patch('/usuarios-roles/{usuario}/rol', [UsuarioRoleController::class, 'updateRol'])->name('admin.usuarios.update-rol');
 
-    // ------------------------------------------------------------------
     // Módulo Financiero Exclusivo de Administración
-    // ------------------------------------------------------------------
     Route::prefix('financiero')->name('financiero.')->group(function () {
-
-        // Pagos y Caja
-        Route::post('pagos', [PagoController::class, 'store'])->name('pagos.store');
-        Route::get('cierre-caja', [PagoController::class, 'cierreCaja'])->name('pagos.cierre');
-        Route::get('pagos/{pago}/comprobante', [PagoController::class, 'generarComprobante'])->name('pagos.comprobante');
 
         // Liquidaciones
         Route::post('liquidaciones/{liquidacion}/pagar', [LiquidacionController::class, 'marcarComoPagada'])->name('liquidaciones.pagar');
@@ -171,14 +197,6 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
             Route::get('/calcular-recaudacion', [ComisionController::class, 'calcularRecaudacion'])->name('calcular-recaudacion');
         });
     });
-
-
-
-
-// 2. Rutas de la Agenda para Dentista
-Route::middleware(['auth', 'role:Dentista'])->group(function () {
-    Route::get('/agenda-general', [AgendaController::class, 'general'])->name('agenda.general');
-    Route::get('/mi-agenda', [AgendaController::class, 'miAgenda'])->name('agenda.personal');
 });
 
 require __DIR__.'/auth.php';

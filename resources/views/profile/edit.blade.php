@@ -22,20 +22,19 @@
             <div
                 class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
             >
-                {{-- Banner Superior con colores estándar de Tailwind (Garantizado que Render los renderiza) --}}
                 <div
-                    class="h-32 w-full bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900"
+                    class="h-28 w-full bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900"
                 ></div>
 
-                <div class="relative px-6 pb-6 sm:px-8">
+                <div class="relative px-6 pb-6 pt-0 sm:px-8">
                     <div
-                        class="flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-end"
+                        class="flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-start"
                     >
-                        {{-- AVATAR Y NOMBRE CON ESPACIADO CÓMODO --}}
+                        {{-- AVATAR Y DATOS --}}
                         <div
-                            class="flex min-w-0 flex-col items-center gap-5 text-center sm:-mt-12 sm:flex-row sm:items-end sm:text-left"
+                            class="flex min-w-0 flex-col items-center gap-5 text-center sm:-mt-10 sm:flex-row sm:items-start sm:text-left"
                         >
-                            {{-- AVATAR PRINCIPAL --}}
+                            {{-- AVATAR PRINCIPAL (Mantiene su posición elevada) --}}
                             <div
                                 style="
                                     width: 96px;
@@ -68,8 +67,8 @@
                                 @endif
                             </div>
 
-                            {{-- CONTENEDOR DEL NOMBRE: Con padding superior (pt-2 sm:pt-4) para dar respiración al texto --}}
-                            <div class="min-w-0 space-y-1 pb-1 pt-2 sm:pt-4">
+                            {{-- CONTENEDOR DEL NOMBRE: Bajado con sm:mt-12 para despegarlo del gradiente --}}
+                            <div class="min-w-0 space-y-1 sm:mt-12">
                                 <div
                                     class="flex flex-wrap items-center justify-center gap-2.5 sm:justify-start"
                                 >
@@ -98,7 +97,7 @@
 
                         {{-- INFORMACIÓN SECUNDARIA --}}
                         <div
-                            class="flex items-center gap-6 border-t border-slate-100 pt-4 text-xs font-medium text-slate-500 sm:border-t-0 sm:pb-1 sm:pt-0"
+                            class="flex items-center gap-6 border-t border-slate-100 pt-4 text-xs font-medium text-slate-500 sm:border-t-0 sm:pt-4"
                         >
                             <div>
                                 <span

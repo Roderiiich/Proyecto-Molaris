@@ -35,6 +35,7 @@
     </x-slot>
 
     <div class="min-h-screen w-full overflow-x-hidden bg-molaris-bg py-6">
+        
         <div class="mx-auto w-full max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
             <!-- 1. TARJETAS DE MÉTRICAS (KPIs) -->
             <div
@@ -59,6 +60,7 @@
                             </svg>
                             Agenda del día
                         </span>
+                        
                     </div>
                     <div
                         class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-50 text-molaris-primary"
@@ -88,6 +90,7 @@
                             </svg>
                             Registrados
                         </span>
+                        
                     </div>
                     <div
                         class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-molaris-mint"

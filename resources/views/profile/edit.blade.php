@@ -25,7 +25,7 @@
                 <div class="relative px-6 pb-6 pt-0 sm:px-8">
                     <div class="flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-end">
 
-                        {{-- AVATAR PRINCIPAL: TAMAÑO FIJO --}}
+                        {{-- AVATAR PRINCIPAL --}}
                         <div class="flex min-w-0 flex-col items-center gap-4 text-center sm:-mt-10 sm:flex-row sm:items-end sm:text-left">
 
                             <div style="width: 96px; height: 96px; min-width: 96px; min-height: 96px; overflow: hidden;"
@@ -137,14 +137,14 @@
 
                                 <div class="flex items-center gap-4">
 
-                                    {{-- PREVISUALIZACIÓN: TAMAÑO FIJO DE 64x64 --}}
+                                    {{-- PREVISUALIZACIÓN DE IMAGEN --}}
                                     <div style="width: 64px; height: 64px; min-width: 64px; min-height: 64px; overflow: hidden;"
                                          class="relative shrink-0 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50">
 
                                         <template x-if="photoPreview">
                                             <img
                                                 :src="photoPreview"
-                                                alt="Vista previa de la foto"
+                                                alt="Vista previa"
                                                 style="display: block; width: 100%; height: 100%; max-width: 100%; object-fit: cover; object-position: center;"
                                             >
                                         </template>
@@ -153,7 +153,7 @@
                                             @if(auth()->user()->avatar)
                                                 <img
                                                     src="{{ asset('storage/' . auth()->user()->avatar) }}"
-                                                    alt="Foto de perfil actual"
+                                                    alt="Foto actual"
                                                     style="display: block; width: 100%; height: 100%; max-width: 100%; object-fit: cover; object-position: center;"
                                                 >
                                             @else
@@ -178,7 +178,6 @@
                                             x-ref="avatar"
                                             @change="
                                                 const file = $refs.avatar.files[0];
-
                                                 if (file) {
                                                     if (file.size > 2 * 1024 * 1024) {
                                                         alert('La imagen no debe superar los 2 MB.');
@@ -188,11 +187,9 @@
                                                     }
 
                                                     const reader = new FileReader();
-
                                                     reader.onload = (e) => {
                                                         photoPreview = e.target.result;
                                                     };
-
                                                     reader.readAsDataURL(file);
                                                 }
                                             "

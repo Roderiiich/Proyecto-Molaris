@@ -22,19 +22,18 @@ class ProfileController extends Controller
         ]);
     }
 
-   public function update(ProfileUpdateRequest $request): RedirectResponse
+ public function update(ProfileUpdateRequest $request): RedirectResponse
 {
     $user = $request->user();
-
-    // Rellenar datos validados excepto el avatar
     $user->fill($request->safe()->except('avatar'));
 
-    // Procesar archivo si viene en la petición
     if ($request->hasFile('avatar')) {
+        // Eliminar avatar anterior si existe en el disco public
         if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
             Storage::disk('public')->delete($user->avatar);
         }
 
+        // IMPORTANTE: Especificar el disco 'public' como segundo argumento
         $user->avatar = $request->file('avatar')->store('avatars', 'public');
     }
 
@@ -42,7 +41,7 @@ class ProfileController extends Controller
         $user->email_verified_at = null;
     }
 
-    $user->save(); // <--- Guardar en la base de datos
+    $user->save();
 
     return Redirect::route('profile.edit')->with('status', 'profile-updated');
 }

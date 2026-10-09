@@ -96,7 +96,7 @@
                         >
                             <button
                                 @click="gestionOpen = !gestionOpen"
-                                class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition  focus:outline-none"
+                                class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition hover:text-emerald-400 focus:outline-none"
                                 :class="{ 'text-emerald-400 font-bold': {{ request()->routeIs('admin.usuarios.*', 'doctores.*', 'boxes.*', 'inventario.*') ? 'true' : 'false' }} }"
                             >
                                 <span>{{ __('Gestión') }}</span>
@@ -181,7 +181,7 @@
                         >
                             <button
                                 @click="dropdownOpen = !dropdownOpen"
-                                class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition focus:outline-none"
+                                class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition hover:text-emerald-400 focus:outline-none"
                                 :class="{ 'text-emerald-400 font-bold': {{ request()->is('financiero*') ? 'true' : 'false' }} }"
                             >
                                 <span>{{ __('Finanzas') }}</span>

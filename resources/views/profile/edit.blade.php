@@ -34,7 +34,7 @@
                         <div
                             class="flex min-w-0 flex-col items-center gap-5 text-center sm:-mt-10 sm:flex-row sm:items-start sm:text-left"
                         >
-                            {{-- AVATAR PRINCIPAL (Mantiene su posición elevada) --}}
+                            {{-- AVATAR PRINCIPAL --}}
                             <div
                                 style="
                                     width: 96px;
@@ -67,7 +67,7 @@
                                 @endif
                             </div>
 
-                            {{-- CONTENEDOR DEL NOMBRE: Bajado con sm:mt-12 para despegarlo del gradiente --}}
+                            {{-- CONTENEDOR DEL NOMBRE --}}
                             <div class="min-w-0 space-y-1 sm:mt-12">
                                 <div
                                     class="flex flex-wrap items-center justify-center gap-2.5 sm:justify-start"
@@ -80,10 +80,10 @@
 
                                     <span
                                         class="inline-block rounded-full px-3 py-0.5 text-xs font-bold text-white shadow-sm
-                            @if(auth()->user()->rol?->nombre === 'Administrador') bg-red-600
-                            @elseif(auth()->user()->rol?->nombre === 'Dentista') bg-blue-600
-                            @elseif(in_array(auth()->user()->rol?->nombre, ['Recepción', 'Recepcionista'])) bg-emerald-600
-                            @else bg-slate-600 @endif"
+                                        @if(auth()->user()->rol?->nombre === 'Administrador') bg-red-600
+                                        @elseif(auth()->user()->rol?->nombre === 'Dentista') bg-blue-600
+                                        @elseif(in_array(auth()->user()->rol?->nombre, ['Recepción', 'Recepcionista'])) bg-emerald-600
+                                        @else bg-slate-600 @endif"
                                     >
                                         {{ auth()->user()->rol?->nombre ?? 'Sin Rol' }}
                                     </span>
@@ -340,9 +340,141 @@
                     </div>
                 </div>
 
+                {{-- MÓDULO ADAPTATIVO POR ROL --}}
+                @if(auth()->user()->rol?->nombre === 'Dentista')
+                    {{-- DENTISTA: FICHA TÉCNICA PROFESIONAL --}}
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div class="flex items-center justify-between border-b border-slate-200 bg-molaris-dark px-6 py-4 text-white">
+                            <div>
+                                <h4 class="text-sm font-bold uppercase tracking-wider">
+                                    {{ __('Ficha Profesional Odontológica') }}
+                                </h4>
+                                <p class="text-xs text-slate-300">
+                                    {{ __('Acreditación clínica para recetas y ficha del paciente.') }}
+                                </p>
+                            </div>
+
+                            <svg class="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+
+                        <div class="p-6">
+                            <form method="post" action="{{ route('profile.update') }}" class="space-y-4">
+                                @csrf
+                                @method('patch')
+
+                                <div>
+                                    <x-input-label for="especialidad" :value="__('Especialidad Principal')" class="text-xs font-bold uppercase text-slate-700" />
+                                    <x-text-input 
+                                        id="especialidad" 
+                                        name="especialidad" 
+                                        type="text" 
+                                        placeholder="Ej. Ortodoncia, Endodoncia, Odontopediatría"
+                                        class="mt-1 block w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-emerald-600 focus:ring-emerald-600" 
+                                        :value="old('especialidad', $user->especialidad)" 
+                                    />
+                                    <x-input-error class="mt-1" :messages="$errors->get('especialidad')" />
+                                </div>
+
+                                <div>
+                                    <x-input-label for="numero_colegiado" :value="__('N° Registro Salud / Registro Médico')" class="text-xs font-bold uppercase text-slate-700" />
+                                    <x-text-input 
+                                        id="numero_colegiado" 
+                                        name="numero_colegiado" 
+                                        type="text" 
+                                        placeholder="Ej. REG-48102"
+                                        class="mt-1 block w-full rounded-lg border-slate-300 text-sm text-slate-900 focus:border-emerald-600 focus:ring-emerald-600" 
+                                        :value="old('numero_colegiado', $user->numero_colegiado)" 
+                                    />
+                                    <x-input-error class="mt-1" :messages="$errors->get('numero_colegiado')" />
+                                </div>
+
+                                <div class="flex justify-end pt-2">
+                                    <button type="submit" class="rounded-lg bg-emerald-600 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-emerald-700">
+                                        {{ __('Guardar Ficha') }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                @elseif(auth()->user()->rol?->nombre === 'Administrador')
+                    {{-- ADMINISTRADOR: PANEL DE CONTROL RÁPIDO --}}
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div class="flex items-center justify-between border-b border-slate-200 bg-molaris-dark px-6 py-4 text-white">
+                            <div>
+                                <h4 class="text-sm font-bold uppercase tracking-wider">
+                                    {{ __('Administración de Clínica') }}
+                                </h4>
+                                <p class="text-xs text-slate-300">
+                                    {{ __('Estado del sistema y gestión del personal.') }}
+                                </p>
+                            </div>
+
+                            <svg class="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            </svg>
+                        </div>
+
+                        <div class="p-6 space-y-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Servidor Base de Datos</span>
+                                    <span class="text-xs font-bold text-emerald-600 mt-2 flex items-center gap-1.5">
+                                        <span class="h-2 w-2 rounded-full bg-emerald-500"></span> Supabase OK
+                                    </span>
+                                </div>
+
+                                <div class="flex flex-col justify-between rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Almacenamiento Fotos</span>
+                                    <span class="text-xs font-bold text-emerald-600 mt-2">Base64 DB</span>
+                                </div>
+                            </div>
+
+                            <p class="text-xs text-slate-500">Acceso rápido para crear o modificar cuentas de odontólogos y recepcionistas.</p>
+                            @if(Route::has('users.index'))
+                                <a href="{{ route('users.index') }}" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-slate-800 px-4 py-2.5 text-xs font-bold uppercase text-white shadow hover:bg-slate-900 transition">
+                                    <span>Gestionar Usuarios</span>
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
+                @else
+                    {{-- RECEPCIÓN: ATAJOS DE RECEPCIÓN --}}
+                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                        <div class="flex items-center justify-between border-b border-slate-200 bg-molaris-dark px-6 py-4 text-white">
+                            <div>
+                                <h4 class="text-sm font-bold uppercase tracking-wider">
+                                    {{ __('Atención & Agenda') }}
+                                </h4>
+                                <p class="text-xs text-slate-300">
+                                    {{ __('Gestión de la recepción de pacientes.') }}
+                                </p>
+                            </div>
+
+                            <svg class="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+
+                        <div class="p-6 space-y-4">
+                            <p class="text-xs text-slate-500">Acceso rápido al módulo de agendamiento y confirmación de citas.</p>
+                            @if(Route::has('appointments.index'))
+                                <a href="{{ route('appointments.index') }}" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-xs font-bold uppercase text-white shadow hover:bg-emerald-700 transition">
+                                    <span>Ir a la Agenda del Día</span>
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 {{-- CAMBIO DE CONTRASEÑA --}}
                 <div
-                    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                    class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm lg:col-span-2"
                 >
                     <div
                         class="flex items-center justify-between border-b border-slate-200 bg-molaris-dark px-6 py-4 text-white"
@@ -367,7 +499,7 @@
                         <form
                             method="post"
                             action="{{ route('password.update') }}"
-                            class="space-y-4"
+                            class="grid grid-cols-1 gap-4 sm:grid-cols-3"
                         >
                             @csrf
                             @method ('put')
@@ -432,10 +564,10 @@
                                 />
                             </div>
 
-                            <div class="pt-4">
+                            <div class="sm:col-span-3 flex justify-end pt-2">
                                 <button
                                     type="submit"
-                                    class="w-full rounded-lg bg-slate-800 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-slate-900"
+                                    class="rounded-lg bg-slate-800 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow transition hover:bg-slate-900"
                                 >
                                     {{ __('Actualizar Clave') }}
                                 </button>

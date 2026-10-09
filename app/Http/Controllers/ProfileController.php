@@ -22,35 +22,30 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Actualiza la información del perfil y procesa la foto avatar.
-     */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $user = $request->user();
-        
-        // Rellena las propiedades validadas excepto el avatar para manejarlo manualmente
-        $user->fill($request->safe()->except('avatar'));
+   public function update(ProfileUpdateRequest $request): RedirectResponse
+{
+    $user = $request->user();
 
-        // Procesar la foto de perfil si fue adjuntada
-        if ($request->hasFile('avatar')) {
-            // Eliminar el avatar anterior del storage si existe
-            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-                Storage::disk('public')->delete($user->avatar);
-            }
+    // Rellenar datos validados excepto el avatar
+    $user->fill($request->safe()->except('avatar'));
 
-            // Guardar la nueva imagen en la carpeta public/avatars
-            $user->avatar = $request->file('avatar')->store('avatars', 'public');
+    // Procesar archivo si viene en la petición
+    if ($request->hasFile('avatar')) {
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
         }
 
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        $user->avatar = $request->file('avatar')->store('avatars', 'public');
     }
+
+    if ($user->isDirty('email')) {
+        $user->email_verified_at = null;
+    }
+
+    $user->save(); // <--- Guardar en la base de datos
+
+    return Redirect::route('profile.edit')->with('status', 'profile-updated');
+}
 
     /**
      * Elimina la cuenta del usuario junto con su foto de perfil.

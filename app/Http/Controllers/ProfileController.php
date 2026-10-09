@@ -22,19 +22,22 @@ class ProfileController extends Controller
         ]);
     }
 
- public function update(ProfileUpdateRequest $request): RedirectResponse
+public function update(ProfileUpdateRequest $request): RedirectResponse
 {
     $user = $request->user();
+    
+    // Asignar los campos validados excepto el avatar
     $user->fill($request->safe()->except('avatar'));
 
+    // Si el usuario subió una nueva foto
     if ($request->hasFile('avatar')) {
-        // Eliminar avatar anterior si existe en el disco public
-        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
-        }
-
-        // IMPORTANTE: Especificar el disco 'public' como segundo argumento
-        $user->avatar = $request->file('avatar')->store('avatars', 'public');
+        $file = $request->file('avatar');
+        
+        // Convertir la imagen a Base64 con el MIME type correcto (data:image/png;base64,...)
+        $base64Image = 'data:' . $file->getMimeType() . ';base64,' . base64_encode(file_get_contents($file));
+        
+        // Guardar la cadena directamente en el campo avatar
+        $user->avatar = $base64Image;
     }
 
     if ($user->isDirty('email')) {

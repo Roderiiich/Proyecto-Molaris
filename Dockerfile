@@ -98,5 +98,3 @@ EXPOSE 80
 # Iniciar Apache
 CMD ["apache2-foreground"]
 
-# Crear el enlace simbólico durante la construcción de la imagen Docker
-RUN php artisan storage:link --force

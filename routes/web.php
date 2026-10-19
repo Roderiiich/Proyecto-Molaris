@@ -168,9 +168,7 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
     Route::delete('/inventario/{id}', [InventarioController::class, 'destroy'])->name('inventario.destroy');
     Route::get('/inventario/exportar-excel', [InventarioController::class, 'exportExcel'])->name('inventario.exportExcel');
 
-    // ----------------------------------------------------------------------
-    // Nro Módulo: Gestión de Usuarios y Roles
-    // ----------------------------------------------------------------------
+    // Gestión de Usuarios y Roles
     Route::get('/usuarios-roles', [UsuarioRoleController::class, 'index'])->name('admin.usuarios.index');
     Route::patch('/usuarios-roles/{usuario}/rol', [UsuarioRoleController::class, 'updateRol'])->name('admin.usuarios.update-rol');
 
@@ -180,10 +178,6 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
         // Liquidaciones
         Route::post('liquidaciones/{liquidacion}/pagar', [LiquidacionController::class, 'marcarComoPagada'])->name('liquidaciones.pagar');
         Route::resource('liquidaciones', LiquidacionController::class)->except(['edit', 'update']);
-
-        // Proveedores y Compras
-        Route::resource('proveedores', ProveedorController::class);
-        Route::resource('compras', CompraController::class)->except(['edit', 'update']);
 
         // Comisiones y Tasas
         Route::prefix('comisiones')->name('comisiones.')->group(function () {
@@ -196,6 +190,24 @@ Route::middleware(['auth', 'role:Administrador'])->group(function () {
             Route::patch('/liquidaciones/{id}/pagar', [ComisionController::class, 'pagarLiquidacion'])->name('liquidaciones.pagar');
             Route::get('/calcular-recaudacion', [ComisionController::class, 'calcularRecaudacion'])->name('calcular-recaudacion');
         });
+
+        // Proveedores
+        Route::resource('proveedores', ProveedorController::class);
+
+        // Compras: Rutas específicas sin parámetros
+        Route::get('compras', [CompraController::class, 'index'])->name('compras.index');
+        Route::get('compras/buscar-insumos', [CompraController::class, 'buscarInsumos'])->name('compras.buscar-insumos');
+        Route::get('compras/crear', [CompraController::class, 'create'])->name('compras.create');
+        Route::post('compras', [CompraController::class, 'store'])->name('compras.store');
+
+        // Rutas con parámetros dinámicos (RESTRINGIDAS estrictamente a enteros)
+        Route::get('compras/{compra}', [CompraController::class, 'show'])
+            ->whereNumber('compra')
+            ->name('compras.show');
+
+        Route::delete('compras/{compra}', [CompraController::class, 'destroy'])
+            ->whereNumber('compra')
+            ->name('compras.destroy');
     });
 });
 

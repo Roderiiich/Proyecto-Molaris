@@ -97,7 +97,7 @@
                             <button
                                 @click="gestionOpen = !gestionOpen"
                                 class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition hover:text-emerald-400 focus:outline-none"
-                                :class="{ 'text-emerald-400 font-bold': {{ request()->routeIs('admin.usuarios.*', 'doctores.*', 'boxes.*', 'inventario.*') ? 'true' : 'false' }} }"
+                                :class="{ 'text-emerald-400 font-bold': {{ request()->routeIs('admin.usuarios.*', 'doctores.*', 'boxes.*', 'inventario.*', 'financiero.proveedores.*') ? 'true' : 'false' }} }"
                             >
                                 <span>{{ __('Gestión') }}</span>
                                 <svg
@@ -157,6 +157,16 @@
                                     <span>{{ __('Boxes') }}</span>
                                 </a>
 
+                                <a
+                                    href="{{ route('financiero.proveedores.index') }}"
+                                    class="group flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-molaris-dark hover:text-white active:bg-emerald-700"
+                                >
+                                    <svg class="h-4 w-4 text-slate-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h1m-1-4h.01M9 16h.01M9 12h.01M9 8h.01M15 16h.01M15 12h.01M15 8h.01" />
+                                    </svg>
+                                    <span>{{ __('Proveedores') }}</span>
+                                </a>
+
                                 <div class="my-1 border-t border-slate-100"></div>
 
                                 <a
@@ -182,7 +192,7 @@
                             <button
                                 @click="dropdownOpen = !dropdownOpen"
                                 class="inline-flex items-center gap-1.5 py-2 font-semibold text-white transition hover:text-emerald-400 focus:outline-none"
-                                :class="{ 'text-emerald-400 font-bold': {{ request()->is('financiero*') ? 'true' : 'false' }} }"
+                                :class="{ 'text-emerald-400 font-bold': {{ request()->is('financiero*') && !request()->routeIs('financiero.proveedores.*') ? 'true' : 'false' }} }"
                             >
                                 <span>{{ __('Finanzas') }}</span>
                                 <svg
@@ -213,6 +223,18 @@
                                 </div>
 
                                 @if (auth()->user()->rol?->nombre === 'Administrador')
+                                    <a
+                                        href="{{ route('financiero.compras.index') }}"
+                                        class="group flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-molaris-dark hover:text-white active:bg-emerald-700"
+                                    >
+                                        <svg class="h-4 w-4 text-slate-400 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z" />
+                                        </svg>
+                                        <span>{{ __('Compras e Insumos') }}</span>
+                                    </a>
+
+                                    <div class="my-1 border-t border-slate-100"></div>
+
                                     <a
                                         href="{{ route('financiero.comisiones.index') }}"
                                         class="group flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 transition-colors duration-150 hover:bg-molaris-dark hover:text-white active:bg-emerald-700"
@@ -427,6 +449,14 @@
                         </x-responsive-nav-link>
 
                         <x-responsive-nav-link
+                            :href="route('financiero.proveedores.index')"
+                            :active="request()->routeIs('financiero.proveedores.*')"
+                            class="text-slate-300 hover:text-emerald-400"
+                        >
+                            {{ __('Proveedores') }}
+                        </x-responsive-nav-link>
+
+                        <x-responsive-nav-link
                             :href="route('inventario.index')"
                             :active="request()->routeIs('inventario.*')"
                             class="text-slate-300 hover:text-emerald-400"
@@ -462,6 +492,14 @@
                         style="display: none"
                     >
                         @if (auth()->user()->rol?->nombre === 'Administrador')
+                            <x-responsive-nav-link
+                                :href="route('financiero.compras.index')"
+                                :active="request()->routeIs('financiero.compras.*')"
+                                class="text-slate-300 hover:text-emerald-400"
+                            >
+                                {{ __('Compras e Insumos') }}
+                            </x-responsive-nav-link>
+
                             <x-responsive-nav-link
                                 :href="route('financiero.comisiones.index')"
                                 :active="request()->routeIs('financiero.comisiones.index')"
